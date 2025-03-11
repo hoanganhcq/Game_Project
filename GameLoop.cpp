@@ -11,8 +11,8 @@ GameLoop::GameLoop()
 	background_2.setSrc(0, 0, 1050, 1050);
 	background_2.setDest(1080, 0, 1080, 1080);
 
-	player.setSrc(0, 0, 50, 50);
-	player.setDest(200, 200, 50, 50);
+	player.setSrc(0, 0, 75, 105);
+	player.setDest(200, 200, 75, 105);
 }
 
 bool GameLoop::getGameState()
@@ -33,7 +33,7 @@ void GameLoop::Initialize()
 			GameState = true;
 			background_1.CreateTexture("assets/image/background.png", renderer);
 			background_2.CreateTexture("assets/image/background.png", renderer);
-			player.CreateTexture("assets/image/player_test.png",renderer);
+			player.setSpriteSheet(renderer);
 		}
 		else cout << "Renderer was not created!" << endl;
 	}
@@ -48,14 +48,15 @@ void GameLoop::Event()
 		GameState = false;
 	}
 
-	player.Movement(event);
+	player.handleInput(event);
 }
 
 void GameLoop::Update()
 {
 	background_1.BackgroundUpdate();
 
-	player.PositionUpdate();
+	player.Update();
+
 }
 
 void GameLoop::Render()
