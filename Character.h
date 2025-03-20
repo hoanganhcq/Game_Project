@@ -5,7 +5,7 @@
 class Character : public Object
 {
 private:
-	float x_pos = 200, y_pos = 200;
+	float x_pos = 200, y_pos = 400;
 	float xVel = 0, yVel = 0;
 
 	float speed = 5;
@@ -13,27 +13,29 @@ private:
 	float gravity = 0.2;
 
 	bool isDead = false;
-	bool inJump = false;
+	//bool inJump = false;
+	bool isOnGround = false;
+	bool isFalling = true;
 	bool isMoving = false;
 	bool facingRight = true;
 	bool isAttacking = false;
 
 	SDL_Texture* Tex = NULL;
 
+	const int frameWidth = 100;
+	const int frameHeight = 100;
+
 	//spritesheet
 	SDL_Texture* idle_spritesheet = NULL;
-	const int idle_frameWidth = 160, idle_frameHeight = 160;
 	SDL_Rect idle_spriteClips[6];
 	int idle_current_frame = 0;
 
 	SDL_Texture* run_spritesheet = NULL;
-	const int run_frameWidth = 160, run_frameHeight = 160;
 	SDL_Rect run_spriteClips[9];
 	int run_current_frame = 0;
 
 	SDL_Texture* jump_spritesheet = NULL;
-	const int jump_frameWidth = 130, jump_frameHeight = 140;
-	SDL_Rect jump_spriteClips[6];
+	SDL_Rect jump_spriteClips[7];
 	int jump_current_frame = 0;
 
 
@@ -46,10 +48,20 @@ private:
 	int attack_current_frame = 0;
 	int current_attack = 0;
 
+	SDL_Rect playerRect;
 	int animationTimer = 0;
 public:
-	
-	bool isOnGround();
+
+	// Collision with Tiles
+	SDL_Rect getRect();
+	void setRect(int x, int y, int w, int h);
+	void setY(int y_value);
+	void setX(int x_value);
+	void setVelocityY(int yVel_value);
+	void setVelocityX(int xVel_value);
+	void setFalling(bool T_F);
+
+
 	void Render(SDL_Renderer* ren);
 	void handleInput(SDL_Event& event);
 	void setSpriteSheet(SDL_Renderer* ren);

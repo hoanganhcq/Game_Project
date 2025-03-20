@@ -6,13 +6,11 @@ GameLoop::GameLoop()
 	renderer = NULL;
 	GameState = false;
 
-	background_1.setSrc(0, 0, 1050, 1050);
-	background_1.setDest(0, 0, 1080, 1080);
-	background_2.setSrc(0, 0, 1050, 1050);
-	background_2.setDest(1080, 0, 1080, 1080);
+	background.setSrc(0, 0, 1800, 1000);
+	background.setDest(0, 0, 1800, 1000);
 
-	player.setSrc(0, 0, 75, 105);
-	player.setDest(200, 200, 75, 105);
+	player.setSrc(0, 0, 100, 100);
+	player.setDest(200, 200, 100, 100);
 }
 
 bool GameLoop::getGameState()
@@ -31,14 +29,18 @@ void GameLoop::Initialize()
 		{
 			cout << "Created Renderer" << endl;
 			GameState = true;
-			background_1.CreateTexture("assets/image/background.png", renderer);
-			background_2.CreateTexture("assets/image/background.png", renderer);
+			background.CreateTexture("assets/image/background.png", renderer);
 			player.setSpriteSheet(renderer);
+
+			tiles.loadTileMap("tileset.txt");
+			tiles.setupTiles();
 		}
 		else cout << "Renderer was not created!" << endl;
 	}
 	else cout << "Window was not created :<" << endl;
 }
+
+
 
 void GameLoop::Event()
 {
@@ -53,17 +55,16 @@ void GameLoop::Event()
 
 void GameLoop::Update()
 {
-	background_1.BackgroundUpdate();
-
+	background.BackgroundUpdate();
 	player.Update();
-
+	CollisionManager::handleCollisions(player, tiles);
 }
 
 void GameLoop::Render()
 {
 	SDL_RenderClear(renderer);
-	background_1.GroundRender(renderer);
-	background_2.GroundRender(renderer);
+	background.GroundRender(renderer);
+	tiles.Render(renderer);
 	player.Render(renderer);
 
 	SDL_RenderPresent(renderer);
