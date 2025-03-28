@@ -1,70 +1,84 @@
 #pragma once
 #include "CollisionManager.h"
+#include <iostream>
 
-bool CollisionManager::checkCollision(SDL_Rect a, SDL_Rect b)
-{
-	return (a.x < b.x + b.w &&
-            a.x + a.w > b.x &&
-            a.y < b.y + b.h &&
-            a.y + a.h > b.y);
+bool CollisionManager::checkCollision(SDL_Rect a, SDL_Rect b) {
+    return (a.x < b.x + b.w &&
+        a.x + a.w > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y);
 }
 
 void CollisionManager::handleCollisions(Character& player, Tile& tile) {
-    bool falling = true;
+    SDL_Rect playerRect = player.getRect();
+    float velocityX = player.getVelocityX();
+    float velocityY = player.getVelocityY();
 
-    for (int i = 0; i < MAP_LEVEL_HEIGHT; i++) {
-        for (int j = 0; j < MAP_LEVEL_WIDTH; j++) {
-            if (tile.getTileType(i, j) != 0) { // is Solid
-                SDL_Rect tileRect = tile.getTileRect(i, j);
-                SDL_Rect playerRect = player.getRect();
+    int x1, x2, y1, y2, t_x1, t_x2;
 
-                if (checkCollision(playerRect, tileRect)) {
-                    int playerBottom = playerRect.y + playerRect.h;
-                    int playerTop = playerRect.y;
-                    int playerLeft = playerRect.x;
-                    int playerRight = playerRect.x + playerRect.w;
+    // Horizontal collision
+    int min_height = (playerRect.h < TILE_SIZE) ? playerRect.h : TILE_SIZE;
+    x1 = (playerRect.x + velocityX) / TILE_SIZE;
+    x2 = (playerRect.x + velocityX + playerRect.w - 1) / TILE_SIZE;
+    y1 = playerRect.y / TILE_SIZE;
+    y2 = (playerRect.y + min_height - 1) / TILE_SIZE;
 
-                    int tileBottom = tileRect.y + tileRect.h;
-                    int tileTop = tileRect.y;
-                    int tileLeft = tileRect.x;
-                    int tileRight = tileRect.x + tileRect.w;
+    t_x1 = (playerRect.x + velocityX - tile.offSetX) / TILE_SIZE;
+    t_x2 = (playerRect.x + velocityX + playerRect.w - 1 - tile.offSetX) / TILE_SIZE;
 
-                    // fall to Tile
-                    if (playerBottom > tileTop && playerRect.y < tileTop) {
-                        if (i == 0 || tile.getTileType(i - 1, j) == 0) 
-                        { // Ensure no tile directly above
-                            player.setY(tileTop - playerRect.h);
-                            player.setVelocityY(0);
-                            falling = false;
-                        }
-                        /*player.setY(tileTop - playerRect.h);
-                        player.setVelocityY(0);
-                        falling = false;*/
-                    }
-                    // up to Tile
-                    else if (playerTop < tileBottom && playerBottom > tileBottom) {
-                        /*if (i < MAP_LEVEL_HEIGHT - 1 && tile.getTileType(i + 1, j) == 0)
-                        {
-                            player.setY(tileBottom);
-                            player.setVelocityY(0);
-                        }*/
-                        player.setY(tileBottom);
-                        player.setVelocityY(0);
-
-                    }
-                         // left to Tile
-                    else if (playerRight > tileLeft && playerLeft < tileLeft) {
-                        player.setX(tileLeft - playerRect.w);
-                        
-                    }
-                         // right to Tile
-                    else if (playerLeft < tileRight && playerRight > tileRight) {
-                        player.setX(tileRight);
-                        
-                    }
-                }
+    if (t_x1 >= 0 && t_x2 < MAP_LEVEL_WIDTH && y1 >= 0 && y2 < MAP_LEVEL_HEIGHT) {
+        if (velocityX > 0) {
+            if (tile.getTileType(y1, t_x2) != 0 || tile.getTileType(y2, t_x2) != 0) {
+                player.setX(t_x2 * TILE_SIZE + tile.offSetX - playerRect.w);
+                player.setVelocityX(0);
+            }
+        }
+        else if (velocityX < 0) {
+            if (tile.getTileType(y1, t_x1) != 0 || tile.getTileType(y2, t_x1) != 0) {
+                player.setX((t_x1 + 1) * TILE_SIZE + tile.offSetX);
+                player.setVelocityX(0);
             }
         }
     }
-    player.setFalling(falling);
+
+    // Vertical collision
+    int min_width = (playerRect.w < TILE_SIZE) ? playerRect.w : TILE_SIZE;
+    x1 = playerRect.x / TILE_SIZE;
+    x2 = (playerRect.x + min_width - 1) / TILE_SIZE;
+    y1 = (playerRect.y + velocityY) / TILE_SIZE;
+    y2 = (playerRect.y + velocityY + playerRect.h - 1) / TILE_SIZE;
+
+    t_x1 = (playerRect.x - tile.offSetX) / TILE_SIZE;
+    t_x2 = (playerRect.x + min_width - 1 - tile.offSetX) / TILE_SIZE;
+
+    bool wasFalling = player.getJumpState();
+
+    if (t_x1 >= 0 && t_x2 < MAP_LEVEL_WIDTH && y1 >= 0 && y2 < MAP_LEVEL_HEIGHT) {
+        if (velocityY > 0) {
+            if (tile.getTileType(y2, t_x1) != 0 || tile.getTileType(y2, t_x2) != 0) {
+                player.setY(y2 * TILE_SIZE - playerRect.h);
+                player.setVelocityY(0);
+                player.setFalling(false);
+            }
+            else if (wasFalling) {
+                player.setFalling(true);
+            }
+        }
+        else if (velocityY < 0) {
+            if (tile.getTileType(y1, t_x1) != 0 || tile.getTileType(y1, t_x2) != 0) {
+                player.setY((y1 + 1) * TILE_SIZE);
+                player.setVelocityY(0);
+            }
+        }
+    }
+
+    int bottom_y = (playerRect.y + playerRect.h) / TILE_SIZE;
+    int bottom_x1 = (playerRect.x - tile.offSetX) / TILE_SIZE;
+    int bottom_x2 = (playerRect.x + min_width - 1 - tile.offSetX) / TILE_SIZE;
+
+    if (bottom_x1 >= 0 && bottom_x2 < MAP_LEVEL_WIDTH && bottom_y < MAP_LEVEL_HEIGHT) {
+        if (tile.getTileType(bottom_y, bottom_x1) == 0 && tile.getTileType(bottom_y, bottom_x2) == 0) {
+            player.setFalling(true);
+        }
+    }
 }

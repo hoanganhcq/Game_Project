@@ -9,7 +9,7 @@ private:
 	float xVel = 0, yVel = 0;
 
 	float speed = 5;
-	float jumpspeed = 8;
+	float jumpspeed = 10;
 	float gravity = 0.2;
 
 	bool isDead = false;
@@ -49,6 +49,7 @@ private:
 	int current_attack = 0;
 
 	SDL_Rect playerRect;
+	SDL_Rect prevRect;
 	int animationTimer = 0;
 public:
 
@@ -59,7 +60,10 @@ public:
 	void setX(int x_value);
 	void setVelocityY(int yVel_value);
 	void setVelocityX(int xVel_value);
+	float getVelocityY();
+	float getVelocityX();
 	void setFalling(bool T_F);
+	bool getJumpState();
 
 
 	void Render(SDL_Renderer* ren);

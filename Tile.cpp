@@ -18,13 +18,23 @@ void Tile::loadTileMap(const char* path)
 		{
 			input_file >> tileMap[i][j];
 			if (input_file.peek() == ',') input_file.ignore();
+
+			tilesRect[i][j].x = j * TILE_SIZE;
+			tilesRect[i][j].y = i * TILE_SIZE;
+			tilesRect[i][j].h = TILE_SIZE;
+			tilesRect[i][j].w = TILE_SIZE;
 		}
 	}
 	input_file.close();
 }
 
-void Tile::setupTiles()
+void Tile::setupTiles(SDL_Renderer* ren)
 {
+	tileTexture = IMG_LoadTexture(ren, "assets/image/tileset.png");
+	if (!tileTexture) {
+		std::cout << "Failed to load tileset: " << IMG_GetError() << std::endl;
+	}
+
 	for (int i = 0; i < 3; i++)
 	{
 		tileClips[i].x = i * 100;
@@ -36,26 +46,23 @@ void Tile::setupTiles()
 
 int Tile::getTileType(int tileMap_i, int tileMap_j)
 {
+	if (tileMap_i < 0 || tileMap_i >= MAP_LEVEL_HEIGHT || tileMap_j < 0 || tileMap_j >= MAP_LEVEL_WIDTH) return 0;
 	return tileMap[tileMap_i][tileMap_j];
 }
 
 SDL_Rect Tile::getTileRect(int row, int col)
 {
-	int TILE_SIZE = 100;
-	return { col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+	return tilesRect[row][col];
 }
 
 void Tile::Render(SDL_Renderer* ren)
 {
-	tileTexture = IMG_LoadTexture(ren, "assets/image/tileset.png");
-
 	for (int i = 0; i < MAP_LEVEL_HEIGHT; i++)
 	{
 		for (int j = 0; j < MAP_LEVEL_WIDTH; j++)
 		{
 			int tileType = tileMap[i][j];
-
-			SDL_Rect renderQuad = { j * 100, i * 100, 100, 100 };
+			SDL_Rect renderQuad = { tilesRect[i][j].x + offSetX, tilesRect[i][j].y, TILE_SIZE, TILE_SIZE};
 			SDL_RenderCopy(ren, tileTexture, &tileClips[tileType], &renderQuad);
 		}
 	}

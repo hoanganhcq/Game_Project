@@ -1,5 +1,15 @@
 #include "GameLoop.h"
+#include <random>
 using namespace std;
+
+int getRandomInt(int min, int max) {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib(min, max);
+	return distrib(gen);
+}
+
+
 GameLoop::GameLoop()
 {
 	window = NULL;
@@ -24,16 +34,23 @@ void GameLoop::Initialize()
 	window = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
 	if (window)
 	{
+		cout << "Created Window" << endl;
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 		if (renderer)
 		{
-			cout << "Created Renderer" << endl;
 			GameState = true;
 			background.CreateTexture("assets/image/background.png", renderer);
 			player.setSpriteSheet(renderer);
 
-			tiles.loadTileMap("tileset.txt");
-			tiles.setupTiles();
+			Tile tileMap_1, tileMap_2, tileMap_3;
+			tileMap_1.loadTileMap("tileSet_1.txt"); tileMap_1.setupTiles(renderer);
+			tileMap_2.loadTileMap("tileSet_2.txt"); tileMap_2.setupTiles(renderer);
+			tileMap_3.loadTileMap("tileSet_3.txt"); tileMap_3.setupTiles(renderer);
+			tileMapList = { tileMap_1, tileMap_2, tileMap_3 };
+			
+
+			curr_map = tileMapList[0];
+			next_map = tileMapList[1];  next_map.offSetX = 1800; // mapWidth = 1800
 		}
 		else cout << "Renderer was not created!" << endl;
 	}
@@ -56,15 +73,35 @@ void GameLoop::Event()
 void GameLoop::Update()
 {
 	background.BackgroundUpdate();
+	
+	int scrollSpeed = curr_map.scrollSpeed;
+	curr_map.offSetX -= scrollSpeed;
+	next_map.offSetX -= scrollSpeed;
+
 	player.Update();
-	CollisionManager::handleCollisions(player, tiles);
+
+
+	CollisionManager::handleCollisions(player, curr_map);
+	CollisionManager::handleCollisions(player, next_map);
+	
+	player.setX(player.getRect().x - scrollSpeed);
+
+	if (curr_map.offSetX <= -1800) {
+		curr_map = next_map;
+		curr_map.offSetX = 0;
+
+		int randomIdx = getRandomInt(0, tileMapList.size() - 1);
+		next_map = tileMapList[randomIdx];
+		next_map.offSetX = 1800; // mapWidth = 1800
+	}
 }
 
 void GameLoop::Render()
 {
 	SDL_RenderClear(renderer);
 	background.GroundRender(renderer);
-	tiles.Render(renderer);
+	curr_map.Render(renderer);
+	next_map.Render(renderer);
 	player.Render(renderer);
 
 	SDL_RenderPresent(renderer);

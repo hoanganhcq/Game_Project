@@ -1,9 +1,9 @@
 #include "Character.h"
+#include "Tile.h"
 
 void Character::Render(SDL_Renderer* ren) {
 	SDL_Rect* currentClip = NULL;
 	SDL_Texture* currentTexture = NULL;
-
 
 
 	if (isAttacking && isOnGround)
@@ -23,7 +23,7 @@ void Character::Render(SDL_Renderer* ren) {
 			break;
 		}
 	}
-	else if (isMoving)
+	else if (isMoving || !isOnGround)
 	{
 		if (!isOnGround) {// jump
 			currentClip = &jump_spriteClips[jump_current_frame];
@@ -43,9 +43,7 @@ void Character::Render(SDL_Renderer* ren) {
 
 
 	SDL_RendererFlip flip = facingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
-
 	SDL_Rect renderQuad = { (int)x_pos, (int)y_pos, 100, 100 };
-
 	SDL_RenderCopyEx(ren, currentTexture, currentClip, &renderQuad, 0, NULL, flip);
 }
 
@@ -130,6 +128,7 @@ void Character::setX(int x_value)
 	x_pos = x_value;
 }
 
+
 void Character::setVelocityY(int yVel_value)
 {
 	yVel = yVel_value;
@@ -140,6 +139,15 @@ void Character::setVelocityX(int xVel_value)
 	xVel = xVel_value;
 }
 
+float Character::getVelocityY()
+{
+	return yVel;
+}
+
+float Character::getVelocityX()
+{
+	return xVel;
+}
 
 
 void Character::setFalling(bool T_F)
@@ -147,6 +155,10 @@ void Character::setFalling(bool T_F)
 	isFalling = T_F;
 }
 
+bool Character::getJumpState()
+{
+	return isFalling;
+}
 
 
 
@@ -157,13 +169,13 @@ void Character::handleInput(SDL_Event& event)
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_a:
-			xVel -= speed;
+			xVel = -speed;
 			facingRight = false;
 			isMoving = true;
 			isAttacking = false;
 			break;
 		case SDLK_d:
-			xVel += speed;
+			xVel = speed;
 			facingRight = true;
 			isMoving = true;
 			isAttacking = false;
@@ -196,11 +208,11 @@ void Character::handleInput(SDL_Event& event)
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_a:
-			xVel += speed;
+			if (xVel < 0) xVel = 0;
 			isMoving = false;
 			break;
 		case SDLK_d:
-			xVel -= speed;
+			if (xVel > 0) xVel = 0;
 			isMoving = false;
 			break;
 		}
@@ -209,6 +221,8 @@ void Character::handleInput(SDL_Event& event)
 
 void Character::Update()
 {
+	prevRect = playerRect;
+
 	if (isFalling) yVel += gravity;
 	x_pos += xVel;
 	y_pos += yVel;
@@ -220,9 +234,10 @@ void Character::Update()
 	if (!isFalling)
 	{
 		isOnGround = true;
-		yVel = 0;
+		/*yVel = 0;*/
 		jump_current_frame = 0;
 	}
+	else isOnGround = false;
 
 
 	if (isAttacking)
@@ -237,7 +252,7 @@ void Character::Update()
 			}
 		}
 	}
-	else if (isMoving)
+	else if (isMoving || !isOnGround)
 	{
 		if (!isOnGround)
 		{
@@ -246,11 +261,10 @@ void Character::Update()
 				animationTimer = 0;
 				if (++jump_current_frame >= 6)
 				{
-					jump_current_frame = 7;
+					jump_current_frame = 6;
 					//run_current_frame = 0;
-					isFalling = true;
+					/*isFalling = true;*/
 				}
-				if (!isFalling) jump_current_frame = 0;// !
 			}
 		}
 		else if (xVel != 0)
@@ -261,7 +275,10 @@ void Character::Update()
 				if (++run_current_frame >= 9) run_current_frame = 0;
 			}
 		}
-		else animationTimer = 0;
+		else {
+			animationTimer = 0;
+			isMoving = false;
+		}
 	}
 	else
 	{
@@ -280,7 +297,6 @@ void Character::Update()
 	if (x_pos < -50) x_pos = -50;
 	if (x_pos > 1750) x_pos = 1750;
 
-	int width = 100, height = 100;
 
-	setRect(x_pos, y_pos, width, height);
+	setRect(x_pos, y_pos, 100, 100);
 }
