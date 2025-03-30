@@ -7,6 +7,7 @@ private:
 	int x_pos = 0;
 public:
 	void BackgroundUpdate();
-	void GroundRender(SDL_Renderer* ren);
 	void Render(SDL_Renderer* ren);
+	int offSetX = 0;
+	int scrollSpeed = 1;
 };

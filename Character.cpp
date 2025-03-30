@@ -44,6 +44,11 @@ void Character::Render(SDL_Renderer* ren) {
 
 	SDL_RendererFlip flip = facingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
 	SDL_Rect renderQuad = { (int)x_pos, (int)y_pos, 100, 100 };
+	if (isAttacking && isOnGround)
+	{
+		renderQuad = { (int)x_pos, (int)(y_pos - 18), 118, 118 };
+		if (current_attack == 3) renderQuad = { (int)x_pos, (int)(y_pos - 40), 140, 140 };
+	}
 	SDL_RenderCopyEx(ren, currentTexture, currentClip, &renderQuad, 0, NULL, flip);
 }
 
@@ -161,6 +166,16 @@ bool Character::getJumpState()
 }
 
 
+bool Character::getDirection()
+{
+	return facingRight;
+}
+
+bool Character::getAttackState()
+{
+	return isAttacking;
+}
+
 
 void Character::handleInput(SDL_Event& event)
 {
@@ -175,7 +190,7 @@ void Character::handleInput(SDL_Event& event)
 			isAttacking = false;
 			break;
 		case SDLK_d:
-			xVel = speed;
+			xVel = 1.25 * speed;
 			facingRight = true;
 			isMoving = true;
 			isAttacking = false;
@@ -269,7 +284,7 @@ void Character::Update()
 		}
 		else if (xVel != 0)
 		{
-			if (animationTimer++ >= 10)
+			if (animationTimer++ >= 8)
 			{
 				animationTimer = 0;
 				if (++run_current_frame >= 9) run_current_frame = 0;

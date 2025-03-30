@@ -5,6 +5,7 @@
 #include "Character.h"
 #include "Tile.h"
 #include "CollisionManager.h"
+#include "Projectile.h"
 #include <iostream>
 #include <vector>
 
@@ -12,8 +13,9 @@ class GameLoop
 {
 private:
 
-	Background background;
+	Background background, _background;
 	Character player;
+	Projectile energy_attack_1;
 
 	Tile curr_map, next_map;//
 	std::vector<Tile> tileMapList;

@@ -8,7 +8,7 @@ private:
 	float x_pos = 200, y_pos = 400;
 	float xVel = 0, yVel = 0;
 
-	float speed = 5;
+	float speed = 4;
 	float jumpspeed = 10;
 	float gravity = 0.2;
 
@@ -64,6 +64,9 @@ public:
 	float getVelocityX();
 	void setFalling(bool T_F);
 	bool getJumpState();
+
+	bool getDirection();
+	bool getAttackState();
 
 
 	void Render(SDL_Renderer* ren);

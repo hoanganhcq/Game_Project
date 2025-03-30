@@ -26,7 +26,6 @@ public:
 	//	return MAP_LEVEL_WIDTH * TILE_SIZE;
 	//}
 	void updateScroll() { offSetX -= scrollSpeed; }
-	void updateTilesRect(); 
 
-	int offSetX = 0, scrollSpeed = 1;
+	int offSetX = 0, scrollSpeed = 2;
 };

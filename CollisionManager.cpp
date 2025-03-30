@@ -28,13 +28,13 @@ void CollisionManager::handleCollisions(Character& player, Tile& tile) {
 
     if (t_x1 >= 0 && t_x2 < MAP_LEVEL_WIDTH && y1 >= 0 && y2 < MAP_LEVEL_HEIGHT) {
         if (velocityX > 0) {
-            if (tile.getTileType(y1, t_x2) != 0 || tile.getTileType(y2, t_x2) != 0) {
+            if (tile.getTileType(y1, t_x2) != 0 || (tile.getTileType(y2, t_x2) != 0 && velocityY == 0)) {
                 player.setX(t_x2 * TILE_SIZE + tile.offSetX - playerRect.w);
                 player.setVelocityX(0);
             }
         }
         else if (velocityX < 0) {
-            if (tile.getTileType(y1, t_x1) != 0 || tile.getTileType(y2, t_x1) != 0) {
+            if (tile.getTileType(y1, t_x1) != 0 || (tile.getTileType(y2, t_x1) != 0 && velocityY == 0)) {
                 player.setX((t_x1 + 1) * TILE_SIZE + tile.offSetX);
                 player.setVelocityX(0);
             }
