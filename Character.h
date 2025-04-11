@@ -5,15 +5,17 @@
 class Character : public Object
 {
 private:
-	float x_pos = 200, y_pos = 400;
+	float x_pos = 1200, y_pos = 400;
 	float xVel = 0, yVel = 0;
 
 	float speed = 4;
 	float jumpspeed = 10;
 	float gravity = 0.2;
 
-	bool isDead = false;
-	//bool inJump = false;
+	bool isPlayer = false;
+	bool Dead = false;
+	int healthPoints = 3;
+
 	bool isOnGround = false;
 	bool isFalling = true;
 	bool isMoving = false;
@@ -48,29 +50,58 @@ private:
 	int attack_current_frame = 0;
 	int current_attack = 0;
 
-	SDL_Rect playerRect;
-	SDL_Rect prevRect;
+
+
+	SDL_Texture* idle_monster_spritesheet = NULL;
+	SDL_Rect idle_monster_spriteClips[9];
+	int idle_monster_current_frame = 0;
+
+	SDL_Texture* move_monster_spritesheet = NULL;
+	SDL_Rect move_monster_spriteClips[10];
+	int move_monster_current_frame = 0;
+
+	SDL_Texture* dead_monster_spritesheet = NULL;
+	SDL_Rect dead_monster_spriteClips[6];
+	int dead_monster_current_frame = 0;
+
+	SDL_Texture* attack_monster_spritesheet = NULL;
+	SDL_Rect attack_monster_spriteClips[4];
+	int attack_monster_current_frame = 0;
+
+
+	SDL_Rect characterRect;
+
 	int animationTimer = 0;
 public:
+	void setPlayer() { isPlayer = true; }
 
-	// Collision with Tiles
 	SDL_Rect getRect();
-	void setRect(int x, int y, int w, int h);
-	void setY(int y_value);
-	void setX(int x_value);
-	void setVelocityY(int yVel_value);
-	void setVelocityX(int xVel_value);
+	void setRect(float x, float y, int w, int h);
+	void setY(float y_value);
+	void setX(float x_value);
+	void setVelocityY(float yVel_value);
+	void setVelocityX(float xVel_value);
 	float getVelocityY();
 	float getVelocityX();
 	void setFalling(bool T_F);
 	bool getJumpState();
 
+	//
 	bool getDirection();
+	void setDirection(bool facing_right);
 	bool getAttackState();
+	void setAttackState(bool attacking) { isAttacking = attacking; }
+
+	bool isAlive() const { return !Dead; }
+	int getHP() const { return healthPoints; }
+	void setHP(int amountOfChange);
+	void revive() { Dead = false; }
 
 
 	void Render(SDL_Renderer* ren);
 	void handleInput(SDL_Event& event);
-	void setSpriteSheet(SDL_Renderer* ren);
+	void player_setSpriteSheet(SDL_Renderer* ren);
 	void Update();
+
+	void enemy_setSpriteSheet(SDL_Renderer* ren);
 };

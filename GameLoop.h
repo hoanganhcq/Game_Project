@@ -6,6 +6,7 @@
 #include "Tile.h"
 #include "CollisionManager.h"
 #include "Projectile.h"
+#include "EnemyAI.h"
 #include <iostream>
 #include <vector>
 
@@ -15,9 +16,15 @@ private:
 
 	Background background, _background;
 	Character player;
-	Projectile energy_attack_1;
+	Projectile energy_attack_1, enemyProjectile;
 
-	Tile curr_map, next_map;//
+// Enemy
+	Character enemy;
+	Projectile enemy_projectile;
+	EnemyAI enemyAI;
+//
+
+	Tile curr_map, next_map;
 	std::vector<Tile> tileMapList;
 	
 
@@ -37,4 +44,7 @@ public:
 	void Event();
 	void Render();
 	void Clear();
+
+	int deathTimer = 0;
+	bool waitingForRevive = false;
 };

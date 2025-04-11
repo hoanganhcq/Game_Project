@@ -1,20 +1,24 @@
 #include "Projectile.h"
 #include <SDL_image.h>
 
-Projectile::Projectile() {
+Projectile::Projectile() 
+{
     active = false;
     speed = 5.0f;
     x_pos = 0;
     y_pos = 0;
     facingRight = true;//
+    for (int i = 0; i < 6; ++i) {
+        spriteClips[i] = { 0, 0, 0, 0 };
+    }
     setSrc(0, 0, 160, 240);
     setDest(0, 0, 160, 240);
 }
 
-void Projectile::setSpriteSheet(SDL_Renderer* ren)
+void Projectile::setSpriteSheet(SDL_Renderer* ren, const char* address)
 {
-    spritesheet = IMG_LoadTexture(ren, "assets/image/energy_attack_1.png");
-    for (int i = 0; i < 5; i++)
+    spritesheet = IMG_LoadTexture(ren, address);
+    for (int i = 0; i < 6; i++)
     {
         spriteClips[i].x = i * getDest().w;
         spriteClips[i].y = 0;
@@ -28,18 +32,18 @@ void Projectile::setDirection(bool right)
     facingRight = right;
 }
 
-void Projectile::Update(Character player) {
-    if (!active && player.getAttackState()) {
+void Projectile::Update(Character character) {
+    if (!active && character.getAttackState()) {
         active = true;
-        facingRight = player.getDirection();
+        facingRight = character.getDirection();
         if (facingRight) {
-            x_pos = player.getRect().x + 90;
-            y_pos = player.getRect().y - 50;
+            x_pos = character.getRect().x + 90;
+            y_pos = character.getRect().y - 50;
         }
         else
         {
-            x_pos = player.getRect().x - 60;
-            y_pos = player.getRect().y - 50;
+            x_pos = character.getRect().x - 60;
+            y_pos = character.getRect().y - 50;
         }
         setDest(x_pos, y_pos, 100, 150);
     }
@@ -60,15 +64,25 @@ void Projectile::Update(Character player) {
             active = false;
             currFrame = 0;
         }
-        if (animationTimer++ >= 12) // > attack animaitonTimer
+        if (animationTimer++ >= 10) // > attack animaitonTimer
         {
             animationTimer = 0;
-            if (++currFrame >= 5)
+            if (++currFrame >= 6)
             {
                active = false;
                currFrame = 0;
             }
         }
+    }
+
+    proj_Rect.x = x_pos;
+    proj_Rect.y = y_pos;
+    proj_Rect.w = getDest().w;
+    proj_Rect.h = getDest().h;
+
+
+    if (!character.isAlive()) {
+        active = false;
     }
 }
 

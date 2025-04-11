@@ -22,9 +22,6 @@ public:
 	SDL_Rect getTileRect(int row, int col);
 	void Render(SDL_Renderer* ren);
 
-	//int getWidth() const {
-	//	return MAP_LEVEL_WIDTH * TILE_SIZE;
-	//}
 	void updateScroll() { offSetX -= scrollSpeed; }
 
 	int offSetX = 0, scrollSpeed = 2;

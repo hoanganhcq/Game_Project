@@ -5,46 +5,88 @@ void Character::Render(SDL_Renderer* ren) {
 	SDL_Rect* currentClip = NULL;
 	SDL_Texture* currentTexture = NULL;
 
-
-	if (isAttacking && isOnGround)
+	if (!Dead)
 	{
-		switch (current_attack) {
-		case 1:
-			currentClip = &attack1_spriteClips[attack_current_frame];
-			currentTexture = attack1_spritesheet;
-			break;
-		case 2:
-			currentClip = &attack2_spriteClips[attack_current_frame];
-			currentTexture = attack2_spritesheet;
-			break;
-		case 3:
-			currentClip = &attack3_spriteClips[attack_current_frame];
-			currentTexture = attack3_spritesheet;
-			break;
-		}
-	}
-	else if (isMoving || !isOnGround)
-	{
-		if (!isOnGround) {// jump
-			currentClip = &jump_spriteClips[jump_current_frame];
-			currentTexture = jump_spritesheet;
+		if (isPlayer)
+		{
+			if (isAttacking && isOnGround)
+			{
+				switch (current_attack) {
+				case 1:
+					currentClip = &attack1_spriteClips[attack_current_frame];
+					currentTexture = attack1_spritesheet;
+					break;
+				case 2:
+					currentClip = &attack2_spriteClips[attack_current_frame];
+					currentTexture = attack2_spritesheet;
+					break;
+				case 3:
+					currentClip = &attack3_spriteClips[attack_current_frame];
+					currentTexture = attack3_spritesheet;
+					break;
+				}
+			}
+			else if (isMoving || !isOnGround)
+			{
+				if (!isOnGround) {// jump
+					currentClip = &jump_spriteClips[jump_current_frame];
+					currentTexture = jump_spritesheet;
+				}
+				else {
+					currentClip = &run_spriteClips[run_current_frame];
+					currentTexture = run_spritesheet;
+				}
+			}
+			else
+			{
+				currentClip = &idle_spriteClips[idle_current_frame];
+				currentTexture = idle_spritesheet;
+			}
 		}
 		else {
-			currentClip = &run_spriteClips[run_current_frame];
-			currentTexture = run_spritesheet;
+			if (isAttacking && isOnGround)
+			{
+				currentClip = &attack_monster_spriteClips[attack_monster_current_frame];
+				currentTexture = attack_monster_spritesheet;
+			}
+			else if (isMoving || !isOnGround)
+			{
+				if (isOnGround) {
+					currentClip = &move_monster_spriteClips[move_monster_current_frame];
+					currentTexture = move_monster_spritesheet;
+				}
+				else // fall
+				{
+					currentClip = &idle_monster_spriteClips[idle_monster_current_frame];
+					currentTexture = idle_monster_spritesheet;
+				}
+			}
+			else
+			{
+				currentClip = &idle_monster_spriteClips[idle_monster_current_frame];
+				currentTexture = idle_monster_spritesheet;
+			}
 		}
 	}
-	else
-	{
-		currentClip = &idle_spriteClips[idle_current_frame];
-		currentTexture = idle_spritesheet;
+	else {
+		if (isPlayer)
+		{
+			//...
+		}
+		else
+		{
+			if (dead_monster_current_frame < 6)
+			{
+				currentClip = &dead_monster_spriteClips[dead_monster_current_frame];
+				currentTexture = dead_monster_spritesheet;
+			}// else NULL
+		}
 	}
-
 
 
 	SDL_RendererFlip flip = facingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
 	SDL_Rect renderQuad = { (int)x_pos, (int)y_pos, 100, 100 };
-	if (isAttacking && isOnGround)
+	if (isPlayer && isAttacking && isOnGround)
 	{
 		renderQuad = { (int)x_pos, (int)(y_pos - 18), 118, 118 };
 		if (current_attack == 3) renderQuad = { (int)x_pos, (int)(y_pos - 40), 140, 140 };
@@ -53,7 +95,7 @@ void Character::Render(SDL_Renderer* ren) {
 }
 
 
-void Character::setSpriteSheet(SDL_Renderer* ren)
+void Character::player_setSpriteSheet(SDL_Renderer* ren)
 {
 	idle_spritesheet = IMG_LoadTexture(ren, "assets/image/idle_spritesheet.png");
 	for (int i = 0; i < 6; i++)
@@ -108,38 +150,76 @@ void Character::setSpriteSheet(SDL_Renderer* ren)
 	}
 }
 
+void Character::enemy_setSpriteSheet(SDL_Renderer* ren) {
+	
+	idle_monster_spritesheet = IMG_LoadTexture(ren, "assets/image/idle_monster.png");
+	for (int i = 0; i < 9; i++)
+	{
+		idle_monster_spriteClips[i].x = i * frameWidth;
+		idle_monster_spriteClips[i].y = 0;
+		idle_monster_spriteClips[i].w = frameWidth;
+		idle_monster_spriteClips[i].h = frameHeight;
+	}
+
+	move_monster_spritesheet = IMG_LoadTexture(ren, "assets/image/move_monster.png");
+	for (int i = 0; i < 10; i++)
+	{
+		move_monster_spriteClips[i].x = i * frameWidth;
+		move_monster_spriteClips[i].y = 0;
+		move_monster_spriteClips[i].w = frameWidth;
+		move_monster_spriteClips[i].h = frameHeight;
+	}
+
+	dead_monster_spritesheet = IMG_LoadTexture(ren, "assets/image/dead_monster.png");
+	for (int i = 0; i < 6; i++)
+	{
+		dead_monster_spriteClips[i].x = i * frameWidth;
+		dead_monster_spriteClips[i].y = 0;
+		dead_monster_spriteClips[i].w = frameWidth;
+		dead_monster_spriteClips[i].h = frameHeight;
+	}
+
+	attack_monster_spritesheet = IMG_LoadTexture(ren, "assets/image/attack_monster.png");
+	for (int i = 0; i < 4; i++)
+	{
+		attack_monster_spriteClips[i].x = i * frameWidth;
+		attack_monster_spriteClips[i].y = 0;
+		attack_monster_spriteClips[i].w = frameWidth;
+		attack_monster_spriteClips[i].h = frameHeight;
+	}
+}
 
 // Collisions
 SDL_Rect Character::getRect()
 {
-	return playerRect;
+	return characterRect;
 }
 
-void Character::setRect(int x, int y, int w, int h)
+void Character::setRect(float x, float y, int w, int h)
 {
-	playerRect.x = x;
-	playerRect.y = y;
-	playerRect.w = w;
-	playerRect.h = h;
+	characterRect.x = x;
+	characterRect.y = y;
+	characterRect.w = w;
+	characterRect.h = h;
 }
 
-void Character::setY(int y_value)
+void Character::setY(float y_value)
 {
 	y_pos = y_value;
 }
 
-void Character::setX(int x_value)
+void Character::setX(float x_value)
 {
 	x_pos = x_value;
 }
 
 
-void Character::setVelocityY(int yVel_value)
+void Character::setVelocityY(float yVel_value)
 {
 	yVel = yVel_value;
 }
 
-void Character::setVelocityX(int xVel_value)
+void Character::setVelocityX(float xVel_value)
 {
 	xVel = xVel_value;
 }
@@ -171,9 +251,18 @@ bool Character::getDirection()
 	return facingRight;
 }
 
+void Character::setDirection(bool facing_right)
+{
+	facingRight = facing_right;
+}
+
 bool Character::getAttackState()
 {
 	return isAttacking;
+}
+
+void Character::setHP(int amountOfChange) {
+	healthPoints += amountOfChange;
 }
 
 
@@ -184,13 +273,13 @@ void Character::handleInput(SDL_Event& event)
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_a:
-			xVel = -speed;
+			xVel = -0.75 * speed;
 			facingRight = false;
 			isMoving = true;
 			isAttacking = false;
 			break;
 		case SDLK_d:
-			xVel = 1.25 * speed;
+			xVel = 1.50 * speed;
 			facingRight = true;
 			isMoving = true;
 			isAttacking = false;
@@ -211,6 +300,7 @@ void Character::handleInput(SDL_Event& event)
 			if (isOnGround && !isAttacking)
 			{
 				isAttacking = true;
+				xVel = 0;
 				isMoving = false;
 				current_attack = (current_attack % 3) + 1;
 				attack_current_frame = 0;
@@ -234,84 +324,154 @@ void Character::handleInput(SDL_Event& event)
 	}
 }
 
+
 void Character::Update()
 {
-	prevRect = playerRect;
-
-	if (isFalling) yVel += gravity;
-	x_pos += xVel;
-	y_pos += yVel;
-
-
-	if (yVel > 20) yVel = 20;
-
-	// Collision detection with the tiles
-	if (!isFalling)
+	if (!Dead)
 	{
-		isOnGround = true;
-		/*yVel = 0;*/
-		jump_current_frame = 0;
-	}
-	else isOnGround = false;
+		if (isFalling) yVel += gravity;
+		x_pos += xVel;
+		y_pos += yVel;
 
 
-	if (isAttacking)
-	{
-		if (animationTimer++ >= 8)
+		if (yVel > 20) yVel = 20;
+
+		if (isPlayer)
 		{
-			animationTimer = 0;
-			if (++attack_current_frame >= 6)
+			// Collision detection with the tiles
+			if (!isFalling)
 			{
-				attack_current_frame = 0;
-				isAttacking = false;
+				isOnGround = true;
+				/*yVel = 0;*/
+				jump_current_frame = 0;
 			}
-		}
-	}
-	else if (isMoving || !isOnGround)
-	{
-		if (!isOnGround)
-		{
-			if (animationTimer++ >= 16)
+			else isOnGround = false;
+
+
+			if (isAttacking)
 			{
-				animationTimer = 0;
-				if (++jump_current_frame >= 6)
+				if (animationTimer++ >= 8)
 				{
-					jump_current_frame = 6;
-					//run_current_frame = 0;
-					/*isFalling = true;*/
+					animationTimer = 0;
+					if (++attack_current_frame >= 6)
+					{
+						attack_current_frame = 0;
+						isAttacking = false;
+					}
+				}
+			}
+			else if (isMoving || !isOnGround)
+			{
+				if (!isOnGround)
+				{
+					if (animationTimer++ >= 16)
+					{
+						animationTimer = 0;
+						if (++jump_current_frame >= 6)
+						{
+							jump_current_frame = 6;
+							//run_current_frame = 0;
+							/*isFalling = true;*/
+						}
+					}
+				}
+				else if (xVel != 0)
+				{
+					if (animationTimer++ >= 8)
+					{
+						animationTimer = 0;
+						if (++run_current_frame >= 9) run_current_frame = 0;
+					}
+				}
+				else {
+					animationTimer = 0;
+					isMoving = false;
+				}
+			}
+			else
+			{
+				if (animationTimer++ >= 16)
+				{
+					animationTimer = 0;
+					if (++idle_current_frame >= 6)
+					{
+						idle_current_frame = 0;
+					}
 				}
 			}
 		}
-		else if (xVel != 0)
-		{
-			if (animationTimer++ >= 8)
-			{
-				animationTimer = 0;
-				if (++run_current_frame >= 9) run_current_frame = 0;
-			}
-		}
 		else {
-			animationTimer = 0;
-			isMoving = false;
+			if (!isFalling)
+			{
+				isOnGround = true;
+				/*yVel = 0;*/
+				jump_current_frame = 0;
+			}
+			else isOnGround = false;
+
+
+			if (isAttacking)
+			{
+				if (animationTimer++ >= 15)
+				{
+					animationTimer = 0;
+					if (++attack_monster_current_frame >= 4)
+					{
+						attack_monster_current_frame = 0;
+						isAttacking = false;
+					}
+				}
+			}
+			else if (isMoving && isOnGround)
+			{
+				if (xVel != 0)
+				{
+					if (animationTimer++ >= 8)
+					{
+						animationTimer = 0;
+						if (++move_monster_current_frame >= 9) move_monster_current_frame = 0;
+					}
+				}
+				else {
+					animationTimer = 0;
+					isMoving = false;
+				}
+			}
+			else
+			{
+				if (animationTimer++ >= 16)
+				{
+					animationTimer = 0;
+					if (++idle_monster_current_frame >= 9)
+					{
+						idle_monster_current_frame = 0;
+					}
+				}
+			}
 		}
+
+
+		if (x_pos < -80) Dead = true;
+		if (x_pos > 1750) x_pos = 1750;
+		if (y_pos > 1200) Dead = true;
+
+		setRect(x_pos, y_pos, 100, 100);
 	}
-	else
+	else  // dead
 	{
-		if (animationTimer++ >= 16)
+		if (animationTimer++ >= 10)
 		{
 			animationTimer = 0;
-			if (++idle_current_frame >= 6)
+			if (dead_monster_current_frame++ >= 6)
 			{
-				idle_current_frame = 0;
+				dead_monster_current_frame = 6;
 			}
 		}
 	}
 
-
-
-	if (x_pos < -50) x_pos = -50;
-	if (x_pos > 1750) x_pos = 1750;
-
-
-	setRect(x_pos, y_pos, 100, 100);
+	if (healthPoints <= 0)
+	{
+		Dead = true;
+		healthPoints = 0;
+	}
 }

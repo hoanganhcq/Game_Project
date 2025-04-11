@@ -135,6 +135,7 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="EnemyAI.cpp" />
     <ClCompile Include="GameLoop.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="EnemyAI.h" />
     <ClInclude Include="GameLoop.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Projectile.h" />

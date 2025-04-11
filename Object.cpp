@@ -23,7 +23,7 @@ void Object::setSrc(int x, int y, int w, int h)
 	src.w = w;
 }
 
-void Object::setDest(float x, float y, int w, int h)
+void Object::setDest(int x, int y, int w, int h)
 {
 	dest.x = x;
 	dest.y = y;
