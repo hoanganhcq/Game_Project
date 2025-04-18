@@ -1,5 +1,6 @@
 #include "Character.h"
 #include "Tile.h"
+#include <iostream>
 
 void Character::Render(SDL_Renderer* ren) {
 	SDL_Rect* currentClip = NULL;
@@ -71,7 +72,13 @@ void Character::Render(SDL_Renderer* ren) {
 	else {
 		if (isPlayer)
 		{
-			//...
+			//if (dead_current_frame < 10)
+			//{
+			//	currentClip = &dead_spriteClips[dead_current_frame];
+			//	currentTexture = dead_spritesheet;
+			//}// else NULL
+			currentClip = &dead_spriteClips[dead_current_frame];
+			currentTexture = dead_spritesheet;
 		}
 		else
 		{
@@ -148,6 +155,19 @@ void Character::player_setSpriteSheet(SDL_Renderer* ren)
 		attack3_spriteClips[i].w = 150;
 		attack3_spriteClips[i].h = 100;
 	}
+	dead_spritesheet = IMG_LoadTexture(ren, "assets/image/dead_spritesheet.png");
+	for (int i = 0; i < 10; i++) {
+		dead_spriteClips[i].x = i * 200;
+		dead_spriteClips[i].y = 0;
+		dead_spriteClips[i].w = 200;
+		dead_spriteClips[i].h = 150;
+	}
+}
+
+void Character::player_setAudio()
+{
+	runSound = Mix_LoadWAV("assets/audio/footStep.wav");
+	//...
 }
 
 void Character::enemy_setSpriteSheet(SDL_Renderer* ren) {
@@ -265,6 +285,19 @@ void Character::setHP(int amountOfChange) {
 	healthPoints += amountOfChange;
 }
 
+void Character::revive() {
+	Dead = false;
+	dead_current_frame = 0;
+	dead_monster_current_frame = 0;
+	setHP(1);
+
+	isOnGround = false;
+	//isFalling = true;
+	isMoving = false;
+	facingRight = true;
+	isAttacking = false;
+}
+
 
 void Character::handleInput(SDL_Event& event)
 {
@@ -272,54 +305,84 @@ void Character::handleInput(SDL_Event& event)
 	{
 		switch (event.key.keysym.sym)
 		{
-		case SDLK_a:
-			xVel = -0.75 * speed;
-			facingRight = false;
-			isMoving = true;
-			isAttacking = false;
-			break;
-		case SDLK_d:
-			xVel = 1.50 * speed;
-			facingRight = true;
-			isMoving = true;
-			isAttacking = false;
-			break;
-		case SDLK_SPACE:
-			if (isOnGround && !isAttacking)
-			{
-				yVel = -jumpspeed;
-				isOnGround = false;
-				isFalling = true;
+			case SDLK_a: {
+				xVel = -0.75f * speed;
+				facingRight = false;
 				isMoving = true;
-				//isAttacking = false;
-				jump_current_frame = 0;
-				run_current_frame = 0;
+				isAttacking = false;
+			
+				if (isOnGround && isMoving && !Mix_Playing(runChannel)) {
+					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 = loop
+				}
+				break;
 			}
-			break;
-		case SDLK_j:
-			if (isOnGround && !isAttacking)
-			{
-				isAttacking = true;
-				xVel = 0;
-				isMoving = false;
-				current_attack = (current_attack % 3) + 1;
-				attack_current_frame = 0;
+			case SDLK_d: {
+				xVel = 1.50f * speed;
+				facingRight = true;
+				isMoving = true;
+				isAttacking = false;
+
+				if (isOnGround && isMoving && !Mix_Playing(runChannel)) {
+					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 = loop
+				}
+				break;
 			}
-			break;
+			case SDLK_SPACE: {
+				if (isOnGround && !isAttacking)
+				{
+					yVel = -jumpspeed;
+					isOnGround = false;
+					isFalling = true;
+					isMoving = true;
+					//isAttacking = false;
+					jump_current_frame = 0;
+					run_current_frame = 0;
+				}
+				if (runChannel != -1) {
+					Mix_HaltChannel(runChannel);
+					runChannel = -1;
+				}
+				break;
+			}
+			case SDLK_j: {
+				if (isOnGround && !isAttacking)
+				{
+					isAttacking = true;
+					xVel = 0;
+					isMoving = false;
+					current_attack = (current_attack % 3) + 1;
+					attack_current_frame = 0;
+				}
+				if (runChannel != -1) {
+					Mix_HaltChannel(runChannel);
+					runChannel = -1;
+				}
+				break;
+			}
 		}
 	}
 	else if (event.type == SDL_KEYUP)
 	{
 		switch (event.key.keysym.sym)
 		{
-		case SDLK_a:
-			if (xVel < 0) xVel = 0;
-			isMoving = false;
-			break;
-		case SDLK_d:
-			if (xVel > 0) xVel = 0;
-			isMoving = false;
-			break;
+			case SDLK_a: {
+				if (xVel < 0) xVel = 0;
+				isMoving = false;
+				if (runChannel != -1) {
+					Mix_HaltChannel(runChannel);
+					runChannel = -1;
+				}
+				break;
+			}
+			case SDLK_d: {
+				if (xVel > 0) xVel = 0;
+				isMoving = false;
+				if (runChannel != -1) {
+					Mix_HaltChannel(runChannel);
+					runChannel = -1;
+				}
+				break;
+			}
 		}
 	}
 }
@@ -329,7 +392,10 @@ void Character::Update()
 {
 	if (!Dead)
 	{
-		if (isFalling) yVel += gravity;
+		if (isFalling) {
+			yVel += gravity;
+		}
+		else yVel = 0;
 		x_pos += xVel;
 		y_pos += yVel;
 
@@ -459,12 +525,29 @@ void Character::Update()
 	}
 	else  // dead
 	{
-		if (animationTimer++ >= 10)
+		if (isFalling) yVel += gravity;
+		y_pos += yVel;
+
+		if (isPlayer)
 		{
-			animationTimer = 0;
-			if (dead_monster_current_frame++ >= 6)
+			if (animationTimer++ >= 18)
 			{
-				dead_monster_current_frame = 6;
+				animationTimer = 0;
+				if (dead_current_frame++ >= 9)
+				{
+					dead_current_frame = 9;
+				}
+			}
+		}
+		else
+		{
+			if (animationTimer++ >= 15)
+			{
+				animationTimer = 0;
+				if (dead_monster_current_frame++ >= 6)
+				{
+					dead_monster_current_frame = 6;//...
+				}
 			}
 		}
 	}

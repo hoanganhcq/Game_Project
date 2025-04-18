@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <SDL_mixer.h>
 #include "Object.h"
 
 class Character : public Object
@@ -27,6 +28,14 @@ private:
 	const int frameWidth = 100;
 	const int frameHeight = 100;
 
+
+	Mix_Chunk* runSound = NULL;
+	Mix_Chunk* jumpSound = NULL;
+	Mix_Chunk* attackSound = NULL;
+
+	int runChannel = -1;
+
+
 	//spritesheet
 	SDL_Texture* idle_spritesheet = NULL;
 	SDL_Rect idle_spriteClips[6];
@@ -40,7 +49,6 @@ private:
 	SDL_Rect jump_spriteClips[7];
 	int jump_current_frame = 0;
 
-
 	SDL_Texture* attack1_spritesheet = NULL;
 	SDL_Rect attack1_spriteClips[6];
 	SDL_Texture* attack2_spritesheet = NULL;
@@ -49,6 +57,10 @@ private:
 	SDL_Rect attack3_spriteClips[6];
 	int attack_current_frame = 0;
 	int current_attack = 0;
+
+	SDL_Texture* dead_spritesheet = NULL;
+	SDL_Rect dead_spriteClips[10];
+	int dead_current_frame = 0;
 
 
 
@@ -72,6 +84,7 @@ private:
 	SDL_Rect characterRect;
 
 	int animationTimer = 0;
+
 public:
 	void setPlayer() { isPlayer = true; }
 
@@ -95,12 +108,14 @@ public:
 	bool isAlive() const { return !Dead; }
 	int getHP() const { return healthPoints; }
 	void setHP(int amountOfChange);
-	void revive() { Dead = false; }
+	void revive();
 
 
 	void Render(SDL_Renderer* ren);
 	void handleInput(SDL_Event& event);
 	void player_setSpriteSheet(SDL_Renderer* ren);
+	void player_setAudio();
+
 	void Update();
 
 	void enemy_setSpriteSheet(SDL_Renderer* ren);

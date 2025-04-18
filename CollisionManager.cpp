@@ -47,7 +47,7 @@ void CollisionManager::handleCollisions(Character& character, Tile& tile) {
    /* x1 = playerRect.x / TILE_SIZE;
     x2 = (playerRect.x + min_width - 1) / TILE_SIZE;*/
     y1 = (playerRect.y + velocityY) / TILE_SIZE;
-    y2 = (playerRect.y + velocityY + playerRect.h - 1) / TILE_SIZE;
+    y2 = (playerRect.y + velocityY + playerRect.h) / TILE_SIZE;
 
     t_x1 = (playerRect.x - tile.offSetX) / TILE_SIZE;
     t_x2 = (playerRect.x + min_width - 1 - tile.offSetX) / TILE_SIZE;
@@ -55,7 +55,7 @@ void CollisionManager::handleCollisions(Character& character, Tile& tile) {
     bool wasFalling = character.getJumpState();
 
     if (t_x1 >= 0 && t_x2 < MAP_LEVEL_WIDTH && y1 >= 0 && y2 < MAP_LEVEL_HEIGHT) {
-        if (velocityY > 0) {
+        if (velocityY >= 0) {
             if (tile.getTileType(y2, t_x1) != 0 || tile.getTileType(y2, t_x2) != 0) {
                 character.setY(y2 * TILE_SIZE - playerRect.h);
                 character.setVelocityY(0);
@@ -73,7 +73,7 @@ void CollisionManager::handleCollisions(Character& character, Tile& tile) {
         }
     }
 
-    int bottom_y = (playerRect.y + playerRect.h) / TILE_SIZE;
+    int bottom_y = (playerRect.y + playerRect.h + 1) / TILE_SIZE;
     int bottom_x1 = (playerRect.x - tile.offSetX) / TILE_SIZE;
     int bottom_x2 = (playerRect.x + min_width - 1 - tile.offSetX) / TILE_SIZE;
 

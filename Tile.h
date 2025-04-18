@@ -22,7 +22,7 @@ public:
 	SDL_Rect getTileRect(int row, int col);
 	void Render(SDL_Renderer* ren);
 
-	void updateScroll() { offSetX -= scrollSpeed; }
+	//void updateScroll() { offSetX -= scrollSpeed; }
 
 	int offSetX = 0, scrollSpeed = 2;
 };
