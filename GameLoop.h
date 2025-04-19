@@ -10,6 +10,7 @@
 #include "Projectile.h"
 #include "EnemyAI.h"
 #include "Button.h"
+#include "GameOverScreen.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -45,6 +46,7 @@ private:
 	Button pauseButton, resumePlayingButton;
 //
 
+
 	SDL_Window* window;
 	SDL_Event event = {};
 	SDL_Renderer* renderer;
@@ -61,8 +63,11 @@ private:
 	SDL_Texture* scoreTextTexture = NULL;
 	SDL_Rect scoreTextRect;
 	//bool scoreNeedsUpdade = true;
-	SDL_Texture* gameOverTextTexture = NULL;
-	SDL_Rect gameOverTextRect;
+
+//Game Over Screen
+	GameOverScreen* gameOverScreen;
+	bool restartRequested = false;
+	bool exitRequested = false;
 public:
 	GameLoop();
 	int currIndex = 0;

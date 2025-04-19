@@ -110,15 +110,7 @@ void GameLoop::Initialize()
 				}
 			}
 			
-			if (pauseFont) {
-				SDL_Color textColor = { 255, 255, 255, 255 };
-				SDL_Surface* textSurface = TTF_RenderText_Solid(pauseFont, "Game Over - Press R to Restart", textColor);
-				if (textSurface) {
-					gameOverTextTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-					gameOverTextRect = { WIDTH / 2 - 200, HEIGHT / 2 - 24, textSurface->w, textSurface->h };
-					SDL_FreeSurface(textSurface);
-				}
-			}
+			
 			score = 0;
 			highScores = {};
 
@@ -126,6 +118,8 @@ void GameLoop::Initialize()
 			pauseButton.setRect(WIDTH - 60, 20, 50, 50);
 			resumePlayingButton.loadTexture("assets/image/resume_playing_button.png", renderer);
 			resumePlayingButton.setRect(WIDTH - 60, 20, 50, 50);
+
+			gameOverScreen = new GameOverScreen(renderer);
 		}
 		else cout << "Renderer was not created!" << endl;
 	}
@@ -140,6 +134,22 @@ void GameLoop::Event()
 	if (event.type == SDL_QUIT)
 	{
 		GameState = false;
+	}
+
+	if (GameOver)
+	{
+		gameOverScreen->handleEvent(event, restartRequested, exitRequested);
+		if (restartRequested) {
+			ResetGame();
+			GameOver = false;
+			Mix_ResumeMusic();
+			restartRequested = false;
+		}
+
+		if (exitRequested) {
+			// MENU...
+			exitRequested = false;
+		}
 	}
 
 	if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
@@ -182,6 +192,10 @@ void GameLoop::Event()
 		}
 	}
 
+	
+
+
+
 	if (!Pause && !GameOver) {
 		player.handleInput(event);
 	}
@@ -196,6 +210,9 @@ void GameLoop::Update()
 	if (GameOver) {
 		Mix_PauseMusic();
 		std::cout << "Game Over" << std::endl;
+
+		gameOverScreen->setScore(score);
+		gameOverScreen->setHighScores(highScores);
 		return;
 	}
 
@@ -350,12 +367,11 @@ void GameLoop::Render()
 	// Game Over
 	if (GameOver) {
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-		SDL_Rect gameOverOverlay = { 0, 0, WIDTH, HEIGHT };
-		SDL_RenderFillRect(renderer, &gameOverOverlay);
-		if (gameOverTextTexture) {
-			SDL_RenderCopy(renderer, gameOverTextTexture, nullptr, &gameOverTextRect);
-		}
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128); // Black, 50% transparent
+		SDL_Rect gameOverScreenOverlay = { 0, 0, WIDTH, HEIGHT };
+		SDL_RenderFillRect(renderer, &gameOverScreenOverlay);
+
+		gameOverScreen->Render(renderer);
 	}
 
 
@@ -412,10 +428,10 @@ void GameLoop::Clear()
 
 	SDL_DestroyTexture(pauseTextTexture);
 	SDL_DestroyTexture(scoreTextTexture);
-	SDL_DestroyTexture(gameOverTextTexture);
 	TTF_CloseFont(pauseFont);
 	TTF_CloseFont(scoreFont);
 	TTF_Quit;
+	gameOverScreen->~GameOverScreen();
 
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);

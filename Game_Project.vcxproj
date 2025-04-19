@@ -138,6 +138,7 @@
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="EnemyAI.cpp" />
     <ClCompile Include="GameLoop.cpp" />
+    <ClCompile Include="GameOverScreen.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Projectile.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="EnemyAI.h" />
     <ClInclude Include="GameLoop.h" />
+    <ClInclude Include="GameOverScreen.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="TextureManager.h" />
