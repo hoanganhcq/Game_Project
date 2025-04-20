@@ -11,6 +11,7 @@
 #include "EnemyAI.h"
 #include "Button.h"
 #include "GameOverScreen.h"
+#include "Menu.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -68,6 +69,12 @@ private:
 	GameOverScreen* gameOverScreen;
 	bool restartRequested = false;
 	bool exitRequested = false;
+
+//Menu
+	Menu* menu;
+	bool inMenu = true;
+	bool playRequested = false;
+	bool quitRequested = false;
 public:
 	GameLoop();
 	int currIndex = 0;

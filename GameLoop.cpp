@@ -39,7 +39,7 @@ bool GameLoop::getGameState()
 void GameLoop::Initialize()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	window = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
+	window = SDL_CreateWindow("Twilight Run", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
 	{
@@ -120,6 +120,7 @@ void GameLoop::Initialize()
 			resumePlayingButton.setRect(WIDTH - 60, 20, 50, 50);
 
 			gameOverScreen = new GameOverScreen(renderer);
+			menu = new Menu(renderer);
 		}
 		else cout << "Renderer was not created!" << endl;
 	}
@@ -136,6 +137,18 @@ void GameLoop::Event()
 		GameState = false;
 	}
 
+	if (inMenu)
+	{
+		menu->handleEvent(event, playRequested, quitRequested);
+		if (playRequested) {
+			inMenu = false;
+			playRequested = false;
+		}
+		if (quitRequested) {
+			GameState = false;
+		}
+	}
+
 	if (GameOver)
 	{
 		gameOverScreen->handleEvent(event, restartRequested, exitRequested);
@@ -147,7 +160,9 @@ void GameLoop::Event()
 		}
 
 		if (exitRequested) {
-			// MENU...
+			inMenu = true;
+			ResetGame();
+			GameOver = false;
 			exitRequested = false;
 		}
 	}
@@ -195,7 +210,6 @@ void GameLoop::Event()
 	
 
 
-
 	if (!Pause && !GameOver) {
 		player.handleInput(event);
 	}
@@ -216,6 +230,10 @@ void GameLoop::Update()
 		return;
 	}
 
+	if (inMenu) {
+		
+		return;
+	}
 
 	if (player.isAlive())
 	{
@@ -318,6 +336,13 @@ void GameLoop::Update()
 
 void GameLoop::Render()
 {
+	if (inMenu)
+	{
+		menu->Render(renderer);
+		SDL_RenderPresent(renderer);
+		return;
+	}
+
 	SDL_RenderClear(renderer);
 	background.Render(renderer);
 	_background.Render(renderer);
