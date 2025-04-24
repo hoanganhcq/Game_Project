@@ -167,7 +167,11 @@ void Character::player_setSpriteSheet(SDL_Renderer* ren)
 void Character::player_setAudio()
 {
 	runSound = Mix_LoadWAV("assets/audio/footStep.wav");
-	//...
+	attackSound = Mix_LoadWAV("assets/audio/player_attack.wav");
+	Mix_VolumeChunk(attackSound, 64);
+
+	playerDiedSound = Mix_LoadWAV("assets/audio/playerDied.wav");
+	Mix_VolumeChunk(playerDiedSound, 16);
 }
 
 void Character::enemy_setSpriteSheet(SDL_Renderer* ren) {
@@ -292,7 +296,6 @@ void Character::revive() {
 	setHP(1);
 
 	isOnGround = false;
-	//isFalling = true;
 	isMoving = false;
 	facingRight = true;
 	isAttacking = false;
@@ -312,7 +315,7 @@ void Character::handleInput(SDL_Event& event)
 				isAttacking = false;
 			
 				if (isOnGround && isMoving && !Mix_Playing(runChannel)) {
-					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 = loop
+					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 : loop
 				}
 				break;
 			}
@@ -323,7 +326,7 @@ void Character::handleInput(SDL_Event& event)
 				isAttacking = false;
 
 				if (isOnGround && isMoving && !Mix_Playing(runChannel)) {
-					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 = loop
+					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 : loop
 				}
 				break;
 			}
@@ -347,6 +350,7 @@ void Character::handleInput(SDL_Event& event)
 			case SDLK_j: {
 				if (isOnGround && !isAttacking)
 				{
+					Mix_PlayChannel(-1, attackSound, 0);
 					isAttacking = true;
 					xVel = 0;
 					isMoving = false;
@@ -518,7 +522,7 @@ void Character::Update()
 
 
 		if (x_pos < -80) Dead = true;
-		if (x_pos > 1750) x_pos = 1750;
+		if (isPlayer && x_pos > 1750) x_pos = 1750;
 		if (y_pos > 1200) Dead = true;
 
 		setRect(x_pos, y_pos, 100, 100);
@@ -557,4 +561,7 @@ void Character::Update()
 		Dead = true;
 		healthPoints = 0;
 	}
+
+
+	if (isPlayer && Dead) Mix_PlayChannel(-1, playerDiedSound, 0);
 }

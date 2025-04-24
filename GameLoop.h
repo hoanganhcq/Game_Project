@@ -12,6 +12,7 @@
 #include "Button.h"
 #include "GameOverScreen.h"
 #include "Menu.h"
+#include "PauseContainer.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -25,15 +26,15 @@ private:
 	Character player;
 	Projectile energy_attack_1, enemyProjectile;
 
-// Enemy
+	// Enemy
 	Character enemy;
 	Projectile enemy_projectile;
 	EnemyAI enemyAI;
-//
+	//
 
 	Tile curr_map, next_map;
 	std::vector<Tile> tileMapList;
-	
+
 
 	const int WIDTH = 1800;
 	const int HEIGHT = 1000;
@@ -43,20 +44,23 @@ private:
 	bool GameOver = false;
 	int waitForDeath_timer = 0;
 
-//Button
+	//Button
 	Button pauseButton, resumePlayingButton;
-//
+	//
 
 
 	SDL_Window* window;
 	SDL_Event event = {};
 	SDL_Renderer* renderer;
 
-	Mix_Music* bgMusic;
-	
+	Mix_Music* bgMusic = NULL;
+	Mix_Chunk* button_pressed_sound = NULL;
+	Mix_Chunk* enemy_is_hitSound = NULL;
+	enum MusicState { NONE, MENU_MUSIC, GAME_MUSIC, GAMEOVER_MUSIC };
+	MusicState currentMusic = NONE;
+
+
 	TTF_Font* pauseFont = NULL;
-	SDL_Texture* pauseTextTexture = NULL;
-	SDL_Rect pauseTextRect;
 
 	int score = 0;
 	std::vector<int> highScores;
@@ -66,18 +70,21 @@ private:
 	//bool scoreNeedsUpdade = true;
 
 //Game Over Screen
-	GameOverScreen* gameOverScreen;
+	GameOverScreen* gameOverScreen = NULL;
 	bool restartRequested = false;
 	bool exitRequested = false;
 
 //Menu
-	Menu* menu;
+	Menu* menu = NULL;
 	bool inMenu = true;
 	bool playRequested = false;
 	bool quitRequested = false;
+
+// Pause Container
+	PauseContainer* pauseContainer = NULL;
+	bool resumeRequested = false;
 public:
 	GameLoop();
-	int currIndex = 0;
 	bool getGameState();
 	void Update();
 	void Initialize();

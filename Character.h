@@ -30,8 +30,9 @@ private:
 
 
 	Mix_Chunk* runSound = NULL;
-	Mix_Chunk* jumpSound = NULL;
 	Mix_Chunk* attackSound = NULL;
+	Mix_Chunk* jumpSound = NULL;
+	Mix_Chunk* playerDiedSound = NULL;
 
 	int runChannel = -1;
 

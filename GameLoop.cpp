@@ -26,9 +26,9 @@ GameLoop::GameLoop()
 	player.setPlayer();
 	//player.setSrc(0, 0, 100, 100);
 	player.setRect(200, 100, 100, 100);
-	
+
 	//enemy.setSrc(0, 0, 100, 100);
-	enemy.setRect(1600, 50, 100, 100);
+	enemy.setRect(2000, 50, 100, 100);
 }
 
 bool GameLoop::getGameState()
@@ -48,9 +48,11 @@ void GameLoop::Initialize()
 		return;
 	}
 	bgMusic = Mix_LoadMUS("assets/audio/bgMusic.mp3");
-	Mix_PlayMusic(bgMusic, -1);
-	Mix_VolumeMusic(64); // 0 -> 128
-
+	//Mix_PlayMusic(bgMusic, -1);
+	Mix_VolumeMusic(32); // 0 -> 128
+	button_pressed_sound = Mix_LoadWAV("assets/audio/button_pressed.wav");
+	enemy_is_hitSound = Mix_LoadWAV("assets/audio/enemy_is_hit.wav");
+	Mix_VolumeChunk(enemy_is_hitSound, 16);
 
 	if (TTF_Init() < 0)
 	{
@@ -98,19 +100,9 @@ void GameLoop::Initialize()
 			{
 				std::cout << "Failed to load font! SDL_ttd Error: " << TTF_GetError() << std::endl;
 			}
-			else
-			{
-				SDL_Color textColor = { 255, 255, 255, 255 }; // white
-				SDL_Surface* textSurface = TTF_RenderText_Solid(pauseFont, "Paused", textColor);
-				if (textSurface)
-				{
-					pauseTextTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-					pauseTextRect = { WIDTH / 2 - 100, HEIGHT / 2 - 24, textSurface->w, textSurface->h };
-					SDL_FreeSurface(textSurface);
-				}
-			}
 			
-			
+
+
 			score = 0;
 			highScores = {};
 
@@ -121,6 +113,12 @@ void GameLoop::Initialize()
 
 			gameOverScreen = new GameOverScreen(renderer);
 			menu = new Menu(renderer);
+
+			pauseContainer = new PauseContainer();
+			pauseContainer->setRect(WIDTH / 2 - 300, HEIGHT / 2 - 200, 600, 400);
+			pauseContainer->loadTexture(renderer);
+			pauseContainer->loadButtons(renderer);
+			pauseContainer->loadTexts(renderer, pauseFont);
 		}
 		else cout << "Renderer was not created!" << endl;
 	}
@@ -149,6 +147,25 @@ void GameLoop::Event()
 		}
 	}
 
+	if (Pause)
+	{
+		pauseContainer->handleEvent(event, resumeRequested, exitRequested);
+		if (resumeRequested) {
+			Pause = false;
+			Mix_ResumeMusic();
+			resumeRequested = false;
+		}
+
+		if (exitRequested) {
+			inMenu = true;
+			Pause = false;
+			ResetGame();
+			GameOver = false;
+			Mix_ResumeMusic();
+			exitRequested = false;
+		}
+	}
+
 	if (GameOver)
 	{
 		gameOverScreen->handleEvent(event, restartRequested, exitRequested);
@@ -163,6 +180,7 @@ void GameLoop::Event()
 			inMenu = true;
 			ResetGame();
 			GameOver = false;
+			Mix_ResumeMusic();
 			exitRequested = false;
 		}
 	}
@@ -193,21 +211,15 @@ void GameLoop::Event()
 	}
 	else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
 	{
-		if (pauseButton.isHovering(event.button.x, event.button.y) && pauseButton.isReadyToClick())
+		if (!Pause && pauseButton.isHovering(event.button.x, event.button.y) && pauseButton.isReadyToClick())
 		{
-			Pause = !Pause;
-			if (Pause)
-			{
-				Mix_PauseMusic();
-			}
-			else
-			{
-				Mix_ResumeMusic();
-			}
+			Pause = true;
+			Mix_PlayChannel(0, button_pressed_sound, 0);
+			Mix_PauseMusic();
 		}
 	}
 
-	
+
 
 
 	if (!Pause && !GameOver) {
@@ -217,23 +229,42 @@ void GameLoop::Event()
 
 void GameLoop::Update()
 {
+	if (inMenu) {
+		if (currentMusic != MENU_MUSIC) {
+			Mix_HaltMusic();
+			Mix_PlayMusic(menu->getMusic(), -1);
+			currentMusic = MENU_MUSIC;
+		}
+		return;
+	}
+
+	if (!inMenu && !GameOver) {
+		if (currentMusic != GAME_MUSIC) {
+			Mix_HaltMusic();
+			Mix_PlayMusic(bgMusic, -1);
+			currentMusic = GAME_MUSIC;
+		}
+	}
+
+
 	if (Pause) {
 		std::cout << "Game is paused" << std::endl;
 		return;
 	}
 	if (GameOver) {
-		Mix_PauseMusic();
-		std::cout << "Game Over" << std::endl;
+		if (currentMusic != GAMEOVER_MUSIC) {
+			Mix_HaltMusic();
+			Mix_PlayMusic(gameOverScreen->getMusic(), -1);
+			currentMusic = GAMEOVER_MUSIC;
+		}
 
 		gameOverScreen->setScore(score);
 		gameOverScreen->setHighScores(highScores);
 		return;
 	}
 
-	if (inMenu) {
-		
-		return;
-	}
+
+	
 
 	if (player.isAlive())
 	{
@@ -252,7 +283,7 @@ void GameLoop::Update()
 	}
 
 
-// background
+	// background
 	int background_scrollSpeed = background.scrollSpeed;
 	if (!player.isAlive()) background_scrollSpeed = 0;
 
@@ -268,12 +299,13 @@ void GameLoop::Update()
 	{
 		_background.offSetX = 1800;
 	}
-//
+	//
 
-// tileMap
-	int scrollSpeed = curr_map.scrollSpeed;
+	// tileMap
+	int scrollSpeed = curr_map.scrollSpeed; // = 2
 	if (!player.isAlive()) scrollSpeed = 0;
-
+	if (score > 3000) scrollSpeed++;
+	if (score > 5000) scrollSpeed++;
 	curr_map.offSetX -= scrollSpeed;
 	next_map.offSetX -= scrollSpeed;
 
@@ -282,9 +314,9 @@ void GameLoop::Update()
 	CollisionManager::handleCollisions(player, next_map);
 	CollisionManager::handleCollisions(enemy, curr_map);
 	CollisionManager::handleCollisions(enemy, next_map);
-	
-	if (player.isAlive()) player.setX(player.getRect().x - scrollSpeed);
-	if (enemy.isAlive()) enemy.setX(enemy.getRect().x - scrollSpeed);
+
+	player.setX(player.getRect().x - scrollSpeed);
+	enemy.setX(enemy.getRect().x - scrollSpeed);
 
 	if (curr_map.offSetX <= -1800) {
 		curr_map = next_map;
@@ -294,7 +326,7 @@ void GameLoop::Update()
 		next_map = tileMapList[randomIdx];
 		next_map.offSetX = 1800; // mapWidth = 1800
 	}
-//
+	//
 
 	if (enemyProjectile.isActive() && CollisionManager::checkCollision(player.getRect(), enemyProjectile.getRect()))
 	{
@@ -304,8 +336,9 @@ void GameLoop::Update()
 	if (energy_attack_1.isActive() && CollisionManager::checkCollision(enemy.getRect(), energy_attack_1.getRect()))
 	{
 		enemy.setHP(-1);
+		Mix_PlayChannel(-1, enemy_is_hitSound, 0);
 	}
-	
+
 
 	player.Update();
 	energy_attack_1.Update(player);
@@ -314,8 +347,8 @@ void GameLoop::Update()
 	enemy.Update();
 	enemyProjectile.Update(enemy);
 
-	
-	if(!enemy.isAlive() && !waitingForRevive) {
+
+	if (!enemy.isAlive() && !waitingForRevive) {
 		waitingForRevive = true;
 		deathTimer = 0;
 	}
@@ -325,8 +358,8 @@ void GameLoop::Update()
 		if (deathTimer >= 300) {
 			enemy.revive();
 			/*enemy.setHP(1);*/
-			enemy.setRect(1600, 150, 100, 100);
-			enemy.setX(1600);
+			enemy.setRect(2000, 150, 100, 100);
+			enemy.setX(2000);
 			enemy.setY(150);
 			waitingForRevive = false;
 			std::cout << "Enemy revived!" << std::endl;
@@ -348,7 +381,7 @@ void GameLoop::Render()
 	_background.Render(renderer);
 	curr_map.Render(renderer);
 	next_map.Render(renderer);
-		
+
 	enemy.Render(renderer);
 	player.Render(renderer);
 	enemyProjectile.Render(renderer);
@@ -381,14 +414,11 @@ void GameLoop::Render()
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128); // Black, 50% transparent
 		SDL_Rect pauseOverlay = { 0, 0, WIDTH, HEIGHT };
-		SDL_RenderFillRect(renderer, & pauseOverlay);
+		SDL_RenderFillRect(renderer, &pauseOverlay);
 
-		if (pauseTextTexture)
-		{
-			SDL_RenderCopy(renderer, pauseTextTexture, NULL, &pauseTextRect);
-		}
+		pauseContainer->Render(renderer);//
 	}
-	 
+
 	// Game Over
 	if (GameOver) {
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -419,7 +449,7 @@ void GameLoop::ResetGame()
 
 	// Reset enemy
 	enemy.revive();
-	enemy.setRect(1600, 300, 100, 100);
+	enemy.setRect(2000, 300, 100, 100);
 	enemy.setVelocityX(0);
 	enemy.setVelocityY(0);
 	waitingForRevive = false;
@@ -446,19 +476,41 @@ void GameLoop::ResetGame()
 
 void GameLoop::Clear()
 {
-	
-	Mix_FreeMusic(bgMusic);
-	bgMusic = NULL;
-	Mix_CloseAudio();
+	if (gameOverScreen) {
+		delete gameOverScreen;
+		gameOverScreen = NULL;
+	}
+	if (menu) {
+		delete menu;
+		menu = NULL;
+	}
+	if (pauseContainer) {
+		delete pauseContainer;
+		pauseContainer = NULL;
+	}
 
-	SDL_DestroyTexture(pauseTextTexture);
+	Mix_FreeMusic(bgMusic);
+	Mix_FreeChunk(button_pressed_sound);
+	Mix_FreeChunk(enemy_is_hitSound);
+	bgMusic = NULL;
+	button_pressed_sound = NULL;
+	enemy_is_hitSound = NULL;
+	Mix_CloseAudio();
+	Mix_Quit();
+
 	SDL_DestroyTexture(scoreTextTexture);
+	scoreTextTexture = NULL;
+
 	TTF_CloseFont(pauseFont);
 	TTF_CloseFont(scoreFont);
-	TTF_Quit;
-	gameOverScreen->~GameOverScreen();
+	pauseFont = NULL;
+	scoreFont = NULL;
+	TTF_Quit();
 
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+	renderer = NULL;
+	window = NULL;
+
 	SDL_Quit();
 }
