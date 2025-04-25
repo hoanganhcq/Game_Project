@@ -168,7 +168,8 @@ void Character::player_setAudio()
 {
 	runSound = Mix_LoadWAV("assets/audio/footStep.wav");
 	attackSound = Mix_LoadWAV("assets/audio/player_attack.wav");
-	Mix_VolumeChunk(attackSound, 64);
+	Mix_VolumeChunk(attackSound, 32);
+	jumpSound = Mix_LoadWAV("assets/audio/jump.wav");
 
 	playerDiedSound = Mix_LoadWAV("assets/audio/playerDied.wav");
 	Mix_VolumeChunk(playerDiedSound, 16);
@@ -333,6 +334,7 @@ void Character::handleInput(SDL_Event& event)
 			case SDLK_SPACE: {
 				if (isOnGround && !isAttacking)
 				{
+					Mix_PlayChannel(-1, jumpSound, 0);
 					yVel = -jumpspeed;
 					isOnGround = false;
 					isFalling = true;
@@ -412,7 +414,6 @@ void Character::Update()
 			if (!isFalling)
 			{
 				isOnGround = true;
-				/*yVel = 0;*/
 				jump_current_frame = 0;
 			}
 			else isOnGround = false;
@@ -440,8 +441,6 @@ void Character::Update()
 						if (++jump_current_frame >= 6)
 						{
 							jump_current_frame = 6;
-							//run_current_frame = 0;
-							/*isFalling = true;*/
 						}
 					}
 				}
@@ -474,7 +473,7 @@ void Character::Update()
 			if (!isFalling)
 			{
 				isOnGround = true;
-				/*yVel = 0;*/
+
 				jump_current_frame = 0;
 			}
 			else isOnGround = false;

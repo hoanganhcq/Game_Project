@@ -48,7 +48,6 @@ void GameLoop::Initialize()
 		return;
 	}
 	bgMusic = Mix_LoadMUS("assets/audio/bgMusic.mp3");
-	//Mix_PlayMusic(bgMusic, -1);
 	Mix_VolumeMusic(32); // 0 -> 128
 	button_pressed_sound = Mix_LoadWAV("assets/audio/button_pressed.wav");
 	enemy_is_hitSound = Mix_LoadWAV("assets/audio/enemy_is_hit.wav");
@@ -80,14 +79,18 @@ void GameLoop::Initialize()
 			EnemyAI enemyAI(enemy_projectile);
 
 
-			Tile tileMap_0, tileMap_1, tileMap_2, tileMap_3, tileMap_4, tileMap_5;
+			Tile tileMap_0, tileMap_1, tileMap_2, tileMap_3, tileMap_4, tileMap_5, tileMap_6, tileMap_7, tileMap_8, tileMap_9;
 			tileMap_0.loadTileMap("tileSet/tileSet_0.txt"); tileMap_0.setupTiles(renderer);
 			tileMap_1.loadTileMap("tileSet/tileSet_1.txt"); tileMap_1.setupTiles(renderer);
 			tileMap_2.loadTileMap("tileSet/tileSet_2.txt"); tileMap_2.setupTiles(renderer);
 			tileMap_3.loadTileMap("tileSet/tileSet_3.txt"); tileMap_3.setupTiles(renderer);
 			tileMap_4.loadTileMap("tileSet/tileSet_4.txt"); tileMap_4.setupTiles(renderer);
 			tileMap_5.loadTileMap("tileSet/tileSet_5.txt"); tileMap_5.setupTiles(renderer);
-			tileMapList = { tileMap_1, tileMap_2, tileMap_3, tileMap_4, tileMap_5 };
+			tileMap_6.loadTileMap("tileSet/tileSet_6.txt"); tileMap_6.setupTiles(renderer);
+			tileMap_7.loadTileMap("tileSet/tileSet_7.txt"); tileMap_7.setupTiles(renderer);
+			tileMap_8.loadTileMap("tileSet/tileSet_8.txt"); tileMap_8.setupTiles(renderer);
+			tileMap_9.loadTileMap("tileSet/tileSet_9.txt"); tileMap_9.setupTiles(renderer);
+			tileMapList = { tileMap_1, tileMap_2, tileMap_3, tileMap_4, tileMap_5 , tileMap_6, tileMap_7, tileMap_8, tileMap_9 };
 
 
 			curr_map = tileMap_0;
@@ -115,7 +118,7 @@ void GameLoop::Initialize()
 			menu = new Menu(renderer);
 
 			pauseContainer = new PauseContainer();
-			pauseContainer->setRect(WIDTH / 2 - 300, HEIGHT / 2 - 200, 600, 400);
+			pauseContainer->setRect(WIDTH / 2 - 300, HEIGHT / 2 - 100, 600, 250);
 			pauseContainer->loadTexture(renderer);
 			pauseContainer->loadButtons(renderer);
 			pauseContainer->loadTexts(renderer, pauseFont);
@@ -149,20 +152,19 @@ void GameLoop::Event()
 
 	if (Pause)
 	{
-		pauseContainer->handleEvent(event, resumeRequested, exitRequested);
+		pauseContainer->handleEvent(event, resumeRequested, pauseExitRequested);
 		if (resumeRequested) {
 			Pause = false;
 			Mix_ResumeMusic();
 			resumeRequested = false;
 		}
 
-		if (exitRequested) {
+		if (pauseExitRequested) {
 			inMenu = true;
 			Pause = false;
 			ResetGame();
-			GameOver = false;
 			Mix_ResumeMusic();
-			exitRequested = false;
+			pauseExitRequested = false;
 		}
 	}
 
@@ -220,8 +222,6 @@ void GameLoop::Event()
 	}
 
 
-
-
 	if (!Pause && !GameOver) {
 		player.handleInput(event);
 	}
@@ -263,13 +263,9 @@ void GameLoop::Update()
 		return;
 	}
 
-
-	
-
 	if (player.isAlive())
 	{
 		score++;
-		//scoreNeedsUpdade = true;
 	}
 	else
 	{
@@ -283,7 +279,7 @@ void GameLoop::Update()
 	}
 
 
-	// background
+// background
 	int background_scrollSpeed = background.scrollSpeed;
 	if (!player.isAlive()) background_scrollSpeed = 0;
 
@@ -299,9 +295,8 @@ void GameLoop::Update()
 	{
 		_background.offSetX = 1800;
 	}
-	//
 
-	// tileMap
+// tileMap
 	int scrollSpeed = curr_map.scrollSpeed; // = 2
 	if (!player.isAlive()) scrollSpeed = 0;
 	if (score > 3000) scrollSpeed++;
@@ -326,7 +321,8 @@ void GameLoop::Update()
 		next_map = tileMapList[randomIdx];
 		next_map.offSetX = 1800; // mapWidth = 1800
 	}
-	//
+
+
 
 	if (enemyProjectile.isActive() && CollisionManager::checkCollision(player.getRect(), enemyProjectile.getRect()))
 	{
@@ -390,7 +386,7 @@ void GameLoop::Render()
 	if (!Pause) pauseButton.Render(renderer);
 	else resumePlayingButton.Render(renderer);
 
-	// Score
+// Score
 	if (scoreFont)
 	{
 		SDL_DestroyTexture(scoreTextTexture);
@@ -408,7 +404,7 @@ void GameLoop::Render()
 	}
 
 
-	//Paused
+//Paused
 	if (Pause)
 	{
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -416,10 +412,10 @@ void GameLoop::Render()
 		SDL_Rect pauseOverlay = { 0, 0, WIDTH, HEIGHT };
 		SDL_RenderFillRect(renderer, &pauseOverlay);
 
-		pauseContainer->Render(renderer);//
+		pauseContainer->Render(renderer);
 	}
 
-	// Game Over
+// Game Over
 	if (GameOver) {
 		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128); // Black, 50% transparent
@@ -435,11 +431,10 @@ void GameLoop::Render()
 
 void GameLoop::ResetGame()
 {
-	// Reset score
+// Reset score
 	score = 0;
-	//scoreNeedsUpdate = true;
 
-	// Reset player
+// Reset player
 	player.revive();
 	player.setX(200);
 	player.setY(100);
@@ -447,7 +442,7 @@ void GameLoop::ResetGame()
 	player.setVelocityY(0);
 	player.setRect(200, 100, 100, 100);
 
-	// Reset enemy
+// Reset enemy
 	enemy.revive();
 	enemy.setRect(2000, 300, 100, 100);
 	enemy.setVelocityX(0);
@@ -455,21 +450,20 @@ void GameLoop::ResetGame()
 	waitingForRevive = false;
 	deathTimer = 0;
 
-	// Reset map
+// Reset map
 	Tile tileMap_0;
 	tileMap_0.loadTileMap("tileSet/tileSet_0.txt");  tileMap_0.setupTiles(renderer);
 	curr_map = tileMap_0;
 	curr_map.offSetX = 0;
-
-	next_map = tileMapList[0]; // tileMap_1
+	next_map = tileMapList[0];
 	next_map.offSetX = 1800;
 
 
-	// Reset background
+// Reset background
 	background.offSetX = 0;
 	_background.offSetX = 1800;
 
-	// Reset projectile
+// Reset projectile
 	energy_attack_1.setActive(false);
 	enemyProjectile.setActive(false);
 }

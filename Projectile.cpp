@@ -7,7 +7,7 @@ Projectile::Projectile()
     speed = 5.0f;
     x_pos = 0;
     y_pos = 0;
-    facingRight = true;//
+    facingRight = true;
     for (int i = 0; i < 6; ++i) {
         spriteClips[i] = { 0, 0, 0, 0 };
     }

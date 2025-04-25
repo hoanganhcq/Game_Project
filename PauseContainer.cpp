@@ -16,9 +16,11 @@ void PauseContainer::loadTexture(SDL_Renderer* ren) {
 
 void PauseContainer::loadButtons(SDL_Renderer* ren) {
     resumeButton.loadTexture("assets/image/button_container.png", ren);
+    resumeButton.loadHoverTexure("assets/image/button_containerHovering.png", ren);
     exitButton.loadTexture("assets/image/button_container.png", ren);
+    exitButton.loadHoverTexure("assets/image/button_containerHovering.png", ren);
 
-    int buttonW = 200, buttonH = 150;
+    int buttonW = 180, buttonH = 100;
     resumeButton.setRect(containerRect.x + containerRect.w / 2 - buttonW - 20,
         containerRect.y + containerRect.h / 2 - buttonH / 2,
         buttonW, buttonH);
@@ -56,6 +58,20 @@ void PauseContainer::loadTexts(SDL_Renderer* ren, TTF_Font* font) {
 
 void PauseContainer::handleEvent(SDL_Event& event, bool& resumeRequested, bool& exitRequested)
 {
+    if (event.type == SDL_MOUSEMOTION) {
+        int x = event.motion.x;
+        int y = event.motion.y;
+        if (resumeButton.isHovering(x, y)) {
+            resumeButton.setHover(true);
+        }
+        else resumeButton.setHover(false);
+
+        if (exitButton.isHovering(x, y)) {
+            exitButton.setHover(true);
+        }
+        else exitButton.setHover(false);
+    }
+
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
         int mx = event.button.x;
         int my = event.button.y;

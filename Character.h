@@ -37,7 +37,6 @@ private:
 	int runChannel = -1;
 
 
-	//spritesheet
 	SDL_Texture* idle_spritesheet = NULL;
 	SDL_Rect idle_spriteClips[6];
 	int idle_current_frame = 0;

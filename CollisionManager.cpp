@@ -18,8 +18,6 @@ void CollisionManager::handleCollisions(Character& character, Tile& tile) {
 
     // Horizontal collision
     int min_height = (playerRect.h < TILE_SIZE) ? playerRect.h : TILE_SIZE;
-   /* x1 = (playerRect.x + velocityX) / TILE_SIZE;
-    x2 = (playerRect.x + velocityX + playerRect.w - 1) / TILE_SIZE;*/
     y1 = playerRect.y / TILE_SIZE;
     y2 = (playerRect.y + min_height - 1) / TILE_SIZE;
 
@@ -44,8 +42,6 @@ void CollisionManager::handleCollisions(Character& character, Tile& tile) {
 
     // Vertical collision
     int min_width = (playerRect.w < TILE_SIZE) ? playerRect.w : TILE_SIZE;
-   /* x1 = playerRect.x / TILE_SIZE;
-    x2 = (playerRect.x + min_width - 1) / TILE_SIZE;*/
     y1 = (playerRect.y + velocityY) / TILE_SIZE;
     y2 = (playerRect.y + velocityY + playerRect.h) / TILE_SIZE;
 

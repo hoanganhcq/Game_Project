@@ -19,7 +19,7 @@ int main(int argc, char** argv)
         first = SDL_GetTicks();
         if (first - last < 16.7)
         {
-            SDL_Delay(static_cast<Uint32>(16.7 - (first - last))); // 60FPS ~ 16.67 ms per frame
+            SDL_Delay(static_cast<Uint32>(16.7 - (first - last))); // 60FPS
         }
         last = first;
     }

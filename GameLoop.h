@@ -83,6 +83,7 @@ private:
 // Pause Container
 	PauseContainer* pauseContainer = NULL;
 	bool resumeRequested = false;
+	bool pauseExitRequested = false;
 public:
 	GameLoop();
 	bool getGameState();
