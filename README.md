@@ -11,7 +11,7 @@ Trò chơi được xây dựng bằng C++ và sử dụng các thư viện SDL2
 -Tile Map System: Sử dụng file văn bản (.txt) để định nghĩa các bản đồ tile, hỗ trợ cuộn liên tục.
 
 # Cách tải game
-Tải game đã được nén thành file Zip tại đường dẫn sau: https://drive.google.com/drive/folders/171PBU7xCG6Dwi8uEEAM9gWBq93Yl-5x2?usp=sharing<br/>
+Tải game đã được nén thành file Zip *[tại đây](https://drive.google.com/drive/folders/171PBU7xCG6Dwi8uEEAM9gWBq93Yl-5x2?usp=sharing)*<br/>
 Sau khi cài xong, giải nén file, mở twilight_run.exe và trải nghiệm.
 
 # Tính năng chính
