@@ -14,30 +14,35 @@ Sau khi cài xong, giải nén file, mở chọn *twilight_run.exe* và trải n
 
 # 1. Công nghệ sử dụng
 Trò chơi được xây dựng bằng C++ và sử dụng các thư viện SDL2 để xử lý đồ họa, âm thanh, và đầu vào người dùng:<br/>
-
--SDL2: Quản lý cửa sổ, render đồ họa, và xử lý sự kiện (phím, chuột).<br/>
--SDL2_image: Tải hình ảnh (PNG) cho sprite, background, và UI.<br/>
--SDL2_ttf: Hiển thị văn bản (ví dụ: điểm số, thông báo Pause/Game Over).<br/>
--SDL2_mixer: Phát nhạc nền và hiệu ứng âm thanh (như nhảy, tấn công).<br/>
--Tile Map System: Sử dụng file văn bản (.txt) để định nghĩa các bản đồ tile, hỗ trợ cuộn liên tục.
+<ul>
+ <li>SDL2: Quản lý cửa sổ, render đồ họa, và xử lý sự kiện (phím, chuột)</li>
+ <li>SDL2_image: Tải hình ảnh (PNG) cho sprite, background, và UI</li>
+ <li>SDL2_ttf: Hiển thị văn bản (ví dụ: điểm số, thông báo *Pause/Game Over*)</li>
+ <li>SDL2_mixer: Phát nhạc nền và hiệu ứng âm thanh (như nhảy, tấn công)</li>
+ <li>Tile Map System: Sử dụng file văn bản (.txt) để định nghĩa các bản đồ tile, hỗ trợ cuộn liên tục</li>
+</ul>
 
 # 2. Tính năng chính
--Bản đồ cuộn liên tục: Người chơi di chuyển qua các bản đồ tile được tạo từ file *.txt*.<br/>
--Nhân vật và chuyển động: Nhân vật có thể chạy, nhảy, và tấn công kẻ thù bằng đòn năng lượng.<br/>
--Kẻ thù: Kẻ thù di chuyển và bắn đạn về phía người chơi, hồi sinh sau một khoảng thời gian.<br/>
--Hệ thống điểm số: Điểm tăng theo thời gian sống sót, lưu điểm cao và hiển thị khi *Game Over*.<br/>
--Tạm dừng: Nút *PAUSE* cho phép tạm dừng game.<br/>
--Hiệu ứng *Game Over*: Phát hoạt hình chết trước khi hiển thị màn hình *Game Over*, với tùy chọn khởi động lại.<br/>
--Âm thanh: Nhạc nền liên tục, hiệu ứng âm thanh cho các hành động như nhảy, tấn công.
+<ul>
+ <li>Bản đồ cuộn liên tục: Người chơi di chuyển qua các bản đồ tile được tạo từ file *.txt*</li>
+ <li>Nhân vật và chuyển động: Nhân vật có thể chạy, nhảy, và tấn công kẻ thù bằng đòn năng lượng</li>
+ <li>Kẻ thù: Kẻ thù di chuyển và bắn đạn về phía người chơi, hồi sinh sau một khoảng thời gian</li>
+ <li>Hệ thống điểm số: Điểm tăng theo thời gian sống sót, lưu điểm cao và hiển thị khi *Game Over*</li>
+ <li>Tạm dừng: Nút *PAUSE* cho phép tạm dừng game</li>
+ <li>Hiệu ứng *Game Over*: Phát hoạt hình chết trước khi hiển thị màn hình *Game Over*, với tùy chọn khởi động lại</li>
+ <li>Âm thanh: Nhạc nền liên tục, hiệu ứng âm thanh cho các hành động như nhảy, tấn công</li>
+</ul>
 
 # 3. Cơ chế
--Di chuyển bản đồ: Bản đồ cuộn tự động từ phải sang trái với một tốc độ cuộn *(scrollSpeed)*.Tốc độ này sẽ tăng khi đạt đến một điểm số nhất định. Người chơi phải di chuyển để tránh bị đẩy ra khỏi màn hình.<br/>
--Va chạm: Nhân vật và kẻ thù va chạm với tile map (dùng *CollisionManager*) để đứng trên nền, tránh rơi xuyên.<br/>
--Đạn của kẻ thù và đòn tấn công của người chơi gây sát thương khi va chạm.<br/>
--Kẻ thù tự động hồi sinh sau một khoảng thời gian.<br/>
--Hiệu ứng tạm dừng: Khi tạm dừng, mọi chuyển động *(background, tile map, nhân vật, kẻ thù...)* dừng lại, hiển thị màn hình "Paused".<br/>
--Hoạt hình: Nhân vật có các trạng thái hoạt hình: chạy, nhảy, tấn công, và chết, được điều khiển bằng *animationTimer* và các frame tương ứng.<br/>
--Hoạt hình chết chạy hết trước khi hiển thị màn hình *Game Over*.
+<ul>
+ <li>Di chuyển bản đồ: Bản đồ cuộn tự động từ phải sang trái với một tốc độ cuộn *(scrollSpeed)*.Tốc độ này sẽ tăng khi đạt đến một điểm số nhất định. Người chơi phải di chuyển để tránh bị đẩy ra khỏi màn hình</li>
+ <li>Va chạm: Nhân vật và kẻ thù va chạm với tile map (dùng *CollisionManager*) để đứng trên nền, tránh rơi xuyên</li>
+ <li>Đạn của kẻ thù và đòn tấn công của người chơi gây sát thương khi va chạm</li>
+ <li>Kẻ thù tự động hồi sinh sau một khoảng thời gian</li>
+ <li>Hiệu ứng tạm dừng: Khi tạm dừng, mọi chuyển động *(background, tile map, nhân vật, kẻ thù...)* dừng lại, hiển thị màn hình "Paused"</li>
+ <li>Hoạt hình: Nhân vật có các trạng thái hoạt hình: chạy, nhảy, tấn công, và chết, được điều khiển bằng *animationTimer* và các frame tương ứng</li>
+ <li>Hoạt hình chết chạy hết trước khi hiển thị màn hình *Game Over*</li>
+</ul>
 
 # 4. Cách chơi
 Ngay khi khởi động, bạn sẽ bước vào giao diện Menu <br/>
@@ -46,7 +51,7 @@ Tại đây, bạn có thể :
     <ul>
         <li>Nhấn *“PLAY”* để bắt đầu trò chơi</li>
         <li>Nhấn *“QUIT”* để tắt chương trình</li>
-        <li>Nhấn vào biểu tượng ![volume](assets/image/muteButton.png) ở góc trên bên phải màn hình để tắt/bật âm thanh</li>
+        <li>Nhấn vào biểu tượng <img src="assets/image/muteButton.png" alt="Volume Icon" width="50px" height="auto"> ở góc trên bên phải màn hình để tắt/bật âm thanh</li>
     </ul>
 
 Sau khi nhấn nút *“PLAY”*, bạn sẽ bắt đầu trò chơi <br/>
@@ -72,7 +77,7 @@ Khi tạm dừng, bạn sẽ có các lựa chọn <br/>
         <li>*"Resume"* để tiếp tục hành trình</li>
         <li>*"Exit"* để quay ra ngoài màn hình Menu</li>
     </ul>
-Nhạc nền và hiệu ứng âm thanh cũng sẽ ngừng hoạt động khi nhấn vào nút ![volume](assets/image/muteButton.png) <br/>
+Nhạc nền và hiệu ứng âm thanh cũng sẽ ngừng hoạt động khi nhấn vào nút <img src="assets/image/muteButton.png" alt="Volume Icon" width="50px" height="auto"> <br/>
 Khi trò chơi kết thúc, điểm số của bạn sẽ được hiển thị cùng với 5 điểm cao nhất của các lượt chơi<br/>
 ![gameOver](Preview/pre_gameOver.png)<br/>
     <ul>
