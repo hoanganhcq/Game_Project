@@ -112,7 +112,7 @@ public:
 
 
 	void Render(SDL_Renderer* ren);
-	void handleInput(SDL_Event& event);
+	void handleInput(SDL_Event& event, bool Mute);
 	void player_setSpriteSheet(SDL_Renderer* ren);
 	void player_setAudio();
 

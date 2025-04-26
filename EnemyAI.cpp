@@ -16,20 +16,25 @@ void EnemyAI::Update(Character& enemy, Character& player, Tile& tileMap)
 		bool facingRight = (dx > 0);
 		enemy.setDirection(facingRight);
 
-		if (distance <= ATTACK_RANGE && !enemy.getAttackState())
+		if (distance <= ATTACK_RANGE && !enemy.getAttackState() && !enemy.getJumpState())
 		{
-			CollisionManager::handleCollisions(enemy, tileMap);
-			enemy.setAttackState(true);
-			enemyProjectile.setActive(true);
-			enemyProjectile.setDirection(facingRight);
-
-			if (facingRight)
+			if (attackTimer > 300)
 			{
-				enemyProjectile.setDest(enemy.getRect().x + 110, enemy.getRect().y - 50, 100, 100);
+				CollisionManager::handleCollisions(enemy, tileMap);
+				enemy.setAttackState(true);
+				enemyProjectile.setActive(true);
+				enemyProjectile.setDirection(facingRight);
+
+				if (facingRight)
+				{
+					enemyProjectile.setDest(enemy.getRect().x + 110, enemy.getRect().y - 50, 100, 100);
+				}
+				else {
+					enemyProjectile.setDest(enemy.getDest().x - 10, enemy.getDest().y - 50, 100, 100);
+				}
+				attackTimer = 0;
 			}
-			else {
-				enemyProjectile.setDest(enemy.getDest().x - 10, enemy.getDest().y - 50, 100, 100);
-			}
+			attackTimer++;
 		}
 
 		if (distance <= DETECTION_RANGE)

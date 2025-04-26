@@ -46,6 +46,7 @@ private:
 
 	//Button
 	Button pauseButton, resumePlayingButton;
+	Button muteButton, unmuteButton;
 	//
 
 
@@ -58,6 +59,8 @@ private:
 	Mix_Chunk* enemy_is_hitSound = NULL;
 	enum MusicState { NONE, MENU_MUSIC, GAME_MUSIC, GAMEOVER_MUSIC };
 	MusicState currentMusic = NONE;
+
+	bool Mute = false;
 
 
 	TTF_Font* pauseFont = NULL;

@@ -3,15 +3,15 @@
 Menu::Menu(SDL_Renderer* ren)
 {
 	TTF_Init();
-	font = TTF_OpenFont("assets/truetype_font/Poppins-Bold.ttf", 64);
+	font = TTF_OpenFont("assets/truetype_font/LuckiestGuy-Regular.ttf", 128);
 	backgroundTexture = IMG_LoadTexture(ren, "assets/image/menuBackground.png");
 	playButton.loadTexture("assets/image/playButton.png", ren);
 	playButton.loadHoverTexure("assets/image/playButtonHovering.png", ren);
-	playButton.setRect(750, 500, 320, 120);
+	playButton.setRect(800, 600, 200, 80);
 	
 	quitButton.loadTexture("assets/image/quitButton.png", ren);
 	quitButton.loadHoverTexure("assets/image/quitButtonHovering.png", ren);
-	quitButton.setRect(750, 700, 320, 120);
+	quitButton.setRect(800, 720, 200, 80);
 
 	menuMusic = Mix_LoadMUS("assets/audio/menu_music.mp3");
 	pressed_sound = Mix_LoadWAV("assets/audio/button_pressed.wav");
@@ -36,7 +36,7 @@ void Menu::Render(SDL_Renderer* ren)
 	SDL_RenderCopy(ren, backgroundTexture, NULL, NULL);
 
 	SDL_Color yellow = { 255, 215, 0 };
-	renderText(ren, "Twilight Run", 920, 300, yellow, true);
+	renderText(ren, "Twilight Run", 920, 200, yellow, true);
 
 	playButton.Render(ren);
 	quitButton.Render(ren);
@@ -63,12 +63,12 @@ void Menu::handleEvent(SDL_Event& event, bool& playRequested, bool& quitRequeste
 		int mx = event.button.x;
 		int my = event.button.y;
 
-		if (playButton.isHovering(mx, my)) {
+		if (playButton.isHovering(mx, my) && playButton.isReadyToClick()) {
 			playRequested = true;
 			Mix_PlayChannel(0, pressed_sound, 0);
 		}
 
-		if (quitButton.isHovering(mx, my)) {
+		if (quitButton.isHovering(mx, my) && quitButton.isReadyToClick()) {
 			quitRequested = true;
 			Mix_PlayChannel(0, pressed_sound, 0);
 		}

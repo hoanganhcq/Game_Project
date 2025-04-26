@@ -303,7 +303,7 @@ void Character::revive() {
 }
 
 
-void Character::handleInput(SDL_Event& event)
+void Character::handleInput(SDL_Event& event, bool Mute)
 {
 	if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
 	{
@@ -316,7 +316,7 @@ void Character::handleInput(SDL_Event& event)
 				isAttacking = false;
 			
 				if (isOnGround && isMoving && !Mix_Playing(runChannel)) {
-					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 : loop
+					if (!Mute) runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 : loop
 				}
 				break;
 			}
@@ -327,14 +327,14 @@ void Character::handleInput(SDL_Event& event)
 				isAttacking = false;
 
 				if (isOnGround && isMoving && !Mix_Playing(runChannel)) {
-					runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 : loop
+					if (!Mute) runChannel = Mix_PlayChannel(-1, runSound, -1); // -1 : loop
 				}
 				break;
 			}
 			case SDLK_SPACE: {
 				if (isOnGround && !isAttacking)
 				{
-					Mix_PlayChannel(-1, jumpSound, 0);
+					if (!Mute) Mix_PlayChannel(-1, jumpSound, 0);
 					yVel = -jumpspeed;
 					isOnGround = false;
 					isFalling = true;
@@ -352,7 +352,7 @@ void Character::handleInput(SDL_Event& event)
 			case SDLK_j: {
 				if (isOnGround && !isAttacking)
 				{
-					Mix_PlayChannel(-1, attackSound, 0);
+					if (!Mute) Mix_PlayChannel(-1, attackSound, 0);
 					isAttacking = true;
 					xVel = 0;
 					isMoving = false;
@@ -562,5 +562,5 @@ void Character::Update()
 	}
 
 
-	if (isPlayer && Dead) Mix_PlayChannel(-1, playerDiedSound, 0);
+	if (isPlayer && Dead ) Mix_PlayChannel(-1, playerDiedSound, 0);
 }

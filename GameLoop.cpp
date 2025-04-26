@@ -41,6 +41,15 @@ void GameLoop::Initialize()
 	SDL_Init(SDL_INIT_EVERYTHING);
 	window = SDL_CreateWindow("Twilight Run", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
 
+	SDL_Surface* icon = IMG_Load("assets/image/gameIcon.png");
+	if (icon == NULL) {
+		std::cout << "Failed to load icon! SDL_image Error: " << IMG_GetError() << std::endl;
+	}
+	SDL_SetWindowIcon(window, icon);
+	SDL_FreeSurface(icon);
+
+
+
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
 	{
 		std::cout << "SDL_mixer could not initialize! Error: " << Mix_GetError() << std::endl;
@@ -114,6 +123,11 @@ void GameLoop::Initialize()
 			resumePlayingButton.loadTexture("assets/image/resume_playing_button.png", renderer);
 			resumePlayingButton.setRect(WIDTH - 60, 20, 50, 50);
 
+			muteButton.loadTexture("assets/image/muteButton.png", renderer);
+			muteButton.setRect(WIDTH - 60, 80, 50, 50);
+			unmuteButton.loadTexture("assets/image/unmuteButton.png", renderer);
+			unmuteButton.setRect(WIDTH - 60, 80, 50, 50);
+
 			gameOverScreen = new GameOverScreen(renderer);
 			menu = new Menu(renderer);
 
@@ -155,15 +169,18 @@ void GameLoop::Event()
 		pauseContainer->handleEvent(event, resumeRequested, pauseExitRequested);
 		if (resumeRequested) {
 			Pause = false;
-			Mix_ResumeMusic();
+			if (!Mute) Mix_ResumeMusic();
+			currentMusic = GAME_MUSIC;
 			resumeRequested = false;
 		}
 
 		if (pauseExitRequested) {
 			inMenu = true;
+			GameOver = false;
 			Pause = false;
+			currentMusic = NONE;
 			ResetGame();
-			Mix_ResumeMusic();
+			if (!Mute) Mix_ResumeMusic();
 			pauseExitRequested = false;
 		}
 	}
@@ -174,7 +191,7 @@ void GameLoop::Event()
 		if (restartRequested) {
 			ResetGame();
 			GameOver = false;
-			Mix_ResumeMusic();
+			if (!Mute) Mix_ResumeMusic();
 			restartRequested = false;
 		}
 
@@ -182,7 +199,8 @@ void GameLoop::Event()
 			inMenu = true;
 			ResetGame();
 			GameOver = false;
-			Mix_ResumeMusic();
+			Pause = false;
+			if (!Mute) Mix_ResumeMusic();
 			exitRequested = false;
 		}
 	}
@@ -192,7 +210,7 @@ void GameLoop::Event()
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_p:
-			if (!GameOver) {
+			if (!GameOver && !inMenu) {
 				Pause = !Pause;
 				if (Pause)
 				{
@@ -200,14 +218,15 @@ void GameLoop::Event()
 				}
 				else
 				{
-					Mix_ResumeMusic();
+					if (!Mute) Mix_ResumeMusic();
 				}
 			}
 		case SDLK_r:
 			if (GameOver) {
 				ResetGame();
 				GameOver = false;
-				Mix_ResumeMusic();
+				inMenu = false;
+				if (!Mute) Mix_ResumeMusic();
 			}
 		}
 	}
@@ -219,42 +238,61 @@ void GameLoop::Event()
 			Mix_PlayChannel(0, button_pressed_sound, 0);
 			Mix_PauseMusic();
 		}
+
+		if (muteButton.isHovering(event.button.x, event.button.y) && muteButton.isReadyToClick())
+		{
+			Mute = !Mute;
+			Mix_PlayChannel(0, button_pressed_sound, 0);
+
+			if (Mute) Mix_HaltMusic();
+			else
+			{
+				if (inMenu)
+				{
+					Mix_PlayMusic(menu->getMusic(), -1);
+					currentMusic = MENU_MUSIC;
+				}
+				else if (GameOver)
+				{
+					Mix_PlayMusic(gameOverScreen->getMusic(), -1);
+					currentMusic = GAMEOVER_MUSIC;
+				}
+				else
+				{
+					Mix_PlayMusic(bgMusic, -1);
+					currentMusic = GAME_MUSIC;
+				}
+			}
+		}
+
+
 	}
 
 
 	if (!Pause && !GameOver) {
-		player.handleInput(event);
+		player.handleInput(event, Mute);
 	}
 }
 
 void GameLoop::Update()
 {
+	muteButton.setRect(WIDTH - 60, 80, 50, 50);
+	unmuteButton.setRect(WIDTH - 60, 80, 50, 50);
 	if (inMenu) {
 		if (currentMusic != MENU_MUSIC) {
 			Mix_HaltMusic();
-			Mix_PlayMusic(menu->getMusic(), -1);
+			if (!Mute) Mix_PlayMusic(menu->getMusic(), -1);
 			currentMusic = MENU_MUSIC;
 		}
 		return;
 	}
-
-	if (!inMenu && !GameOver) {
-		if (currentMusic != GAME_MUSIC) {
-			Mix_HaltMusic();
-			Mix_PlayMusic(bgMusic, -1);
-			currentMusic = GAME_MUSIC;
-		}
-	}
-
-
-	if (Pause) {
-		std::cout << "Game is paused" << std::endl;
-		return;
-	}
+	
 	if (GameOver) {
+		muteButton.setRect(1170, 30, 50, 50);
+		unmuteButton.setRect(1170, 30, 50, 50);
 		if (currentMusic != GAMEOVER_MUSIC) {
 			Mix_HaltMusic();
-			Mix_PlayMusic(gameOverScreen->getMusic(), -1);
+			if (!Mute) Mix_PlayMusic(gameOverScreen->getMusic(), -1);
 			currentMusic = GAMEOVER_MUSIC;
 		}
 
@@ -262,6 +300,22 @@ void GameLoop::Update()
 		gameOverScreen->setHighScores(highScores);
 		return;
 	}
+
+	if (!inMenu && !GameOver) {
+		if (currentMusic != GAME_MUSIC) {
+			Mix_HaltMusic();
+			if (!Mute) Mix_PlayMusic(bgMusic, -1);
+			currentMusic = GAME_MUSIC;
+		}
+	}
+
+
+	if (Pause) {
+		std::cout << "Game is paused" << std::endl;
+		player.setVelocityX(0);
+		return;
+	}
+	
 
 	if (player.isAlive())
 	{
@@ -298,9 +352,9 @@ void GameLoop::Update()
 
 // tileMap
 	int scrollSpeed = curr_map.scrollSpeed; // = 2
-	if (!player.isAlive()) scrollSpeed = 0;
 	if (score > 3000) scrollSpeed++;
 	if (score > 5000) scrollSpeed++;
+	if (!player.isAlive()) scrollSpeed = 0;
 	curr_map.offSetX -= scrollSpeed;
 	next_map.offSetX -= scrollSpeed;
 
@@ -329,10 +383,10 @@ void GameLoop::Update()
 		player.setHP(-1);
 		enemyProjectile.setActive(false);
 	}
-	if (energy_attack_1.isActive() && CollisionManager::checkCollision(enemy.getRect(), energy_attack_1.getRect()))
+	if (energy_attack_1.isActive() && enemy.isAlive() && CollisionManager::checkCollision(enemy.getRect(), energy_attack_1.getRect()))
 	{
 		enemy.setHP(-1);
-		Mix_PlayChannel(-1, enemy_is_hitSound, 0);
+		if (!Mute) Mix_PlayChannel(-1, enemy_is_hitSound, 0);
 	}
 
 
@@ -365,9 +419,13 @@ void GameLoop::Update()
 
 void GameLoop::Render()
 {
+	
+
 	if (inMenu)
 	{
 		menu->Render(renderer);
+		if (Mute) unmuteButton.Render(renderer);
+		else muteButton.Render(renderer);
 		SDL_RenderPresent(renderer);
 		return;
 	}
@@ -385,6 +443,9 @@ void GameLoop::Render()
 
 	if (!Pause) pauseButton.Render(renderer);
 	else resumePlayingButton.Render(renderer);
+
+	
+
 
 // Score
 	if (scoreFont)
@@ -423,7 +484,12 @@ void GameLoop::Render()
 		SDL_RenderFillRect(renderer, &gameOverScreenOverlay);
 
 		gameOverScreen->Render(renderer);
+		if (Mute) unmuteButton.Render(renderer);
+		else muteButton.Render(renderer);
 	}
+
+	if (Mute) unmuteButton.Render(renderer);
+	else muteButton.Render(renderer);
 
 
 	SDL_RenderPresent(renderer);
@@ -436,6 +502,7 @@ void GameLoop::ResetGame()
 
 // Reset player
 	player.revive();
+	player.setHP(2);
 	player.setX(200);
 	player.setY(100);
 	player.setVelocityX(0);

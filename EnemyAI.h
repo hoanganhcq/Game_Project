@@ -9,6 +9,7 @@ class EnemyAI
 public:
 	EnemyAI(Projectile& enemyProjectile);
 	void Update(Character& enemy, Character& player, Tile& tileMap);
+	int attackTimer = 200;
 private:
 	Projectile& enemyProjectile;
 	const float DETECTION_RANGE = 600.0f;
