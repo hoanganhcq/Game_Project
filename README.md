@@ -1,7 +1,18 @@
 # Twilight Run - hoanganh
+
 Twilight Run là một game platformer 2D đầy hành động đưa người chơi vào cuộc phiêu lưu ly kỳ trong thế giới năng động, cuộn liên tục. Là một anh hùng dũng cảm, bạn phải vượt qua những địa hình hiểm trở, chiến đấu với kẻ thù hung dữ và vượt qua chướng ngại vật để sống sót và đạt điểm cao nhất. Trò chơi kết hợp cơ chế platformer cổ điển với các tính năng hiện đại như nút giao diện người dùng tương tác, hoạt ảnh mượt mà và âm thanh sống động.
 
-# Công nghệ sử dụng
+[0. Cách tải game](#0-cách-tải-game)<br/>
+[1. Công nghệ sử dụng](#1-công-nghệ-sử-dụng) <br/>
+[2. Tính năng chính](#2-tính-năng-chính)<br/>
+[3. Cơ chế](#3-cơ-chế)<br/>
+[4. Cách chơi](#4-cách-chơi)
+
+# 0. Cách tải game
+Tải game đã được nén thành file Zip [tại đây](https://drive.google.com/drive/folders/171PBU7xCG6Dwi8uEEAM9gWBq93Yl-5x2?usp=sharing)<br/>
+Sau khi cài xong, giải nén file, mở chọn *twilight_run.exe* và trải nghiệm.
+
+# 1. Công nghệ sử dụng
 Trò chơi được xây dựng bằng C++ và sử dụng các thư viện SDL2 để xử lý đồ họa, âm thanh, và đầu vào người dùng:<br/>
 
 -SDL2: Quản lý cửa sổ, render đồ họa, và xử lý sự kiện (phím, chuột).<br/>
@@ -10,32 +21,61 @@ Trò chơi được xây dựng bằng C++ và sử dụng các thư viện SDL2
 -SDL2_mixer: Phát nhạc nền và hiệu ứng âm thanh (như nhảy, tấn công).<br/>
 -Tile Map System: Sử dụng file văn bản (.txt) để định nghĩa các bản đồ tile, hỗ trợ cuộn liên tục.
 
-# Cách tải game
-Tải game đã được nén thành file Zip *[tại đây](https://drive.google.com/drive/folders/171PBU7xCG6Dwi8uEEAM9gWBq93Yl-5x2?usp=sharing)*<br/>
-Sau khi cài xong, giải nén file, mở twilight_run.exe và trải nghiệm.
-
-# Tính năng chính
--Bản đồ cuộn liên tục: Người chơi di chuyển qua các bản đồ tile được tạo từ file .txt, với hiệu ứng chuyển đổi mượt mà. Tốc độ cuộn sẽ tăng lên khi người chơi đạt đến một số điểm nhất định.<br/>
+# 2. Tính năng chính
+-Bản đồ cuộn liên tục: Người chơi di chuyển qua các bản đồ tile được tạo từ file *.txt*.<br/>
 -Nhân vật và chuyển động: Nhân vật có thể chạy, nhảy, và tấn công kẻ thù bằng đòn năng lượng.<br/>
 -Kẻ thù: Kẻ thù di chuyển và bắn đạn về phía người chơi, hồi sinh sau một khoảng thời gian.<br/>
--Hệ thống điểm số: Điểm tăng theo thời gian sống sót, lưu điểm cao và hiển thị khi Game Over.<br/>
--Tạm dừng: Nút Pause cho phép tạm dừng game.<br/>
--Hiệu ứng Game Over: Phát hoạt hình chết trước khi hiển thị màn hình Game Over, với tùy chọn khởi động lại.<br/>
+-Hệ thống điểm số: Điểm tăng theo thời gian sống sót, lưu điểm cao và hiển thị khi *Game Over*.<br/>
+-Tạm dừng: Nút *PAUSE* cho phép tạm dừng game.<br/>
+-Hiệu ứng *Game Over*: Phát hoạt hình chết trước khi hiển thị màn hình *Game Over*, với tùy chọn khởi động lại.<br/>
 -Âm thanh: Nhạc nền liên tục, hiệu ứng âm thanh cho các hành động như nhảy, tấn công.
 
-# Cơ chế
--Di chuyển bản đồ: Bản đồ cuộn tự động từ phải sang trái với tốc độ cố định (scrollSpeed). Người chơi phải di chuyển để tránh bị đẩy ra khỏi màn hình.<br/>
--Va chạm: Nhân vật và kẻ thù va chạm với tile map (dùng CollisionManager) để đứng trên nền, tránh rơi xuyên.<br/>
+# 3. Cơ chế
+-Di chuyển bản đồ: Bản đồ cuộn tự động từ phải sang trái với một tốc độ cuộn *(scrollSpeed)*.Tốc độ này sẽ tăng khi đạt đến một điểm số nhất định. Người chơi phải di chuyển để tránh bị đẩy ra khỏi màn hình.<br/>
+-Va chạm: Nhân vật và kẻ thù va chạm với tile map (dùng *CollisionManager*) để đứng trên nền, tránh rơi xuyên.<br/>
 -Đạn của kẻ thù và đòn tấn công của người chơi gây sát thương khi va chạm.<br/>
--Kẻ thù tự động hồi sinh sau một khoảng thời gian (deathTimer).<br/>
--Hiệu ứng tạm dừng: Khi tạm dừng, mọi chuyển động (background, tile map, nhân vật, kẻ thù) dừng lại, hiển thị màn hình "Paused".<br/>
--Hoạt hình: Nhân vật có các trạng thái hoạt hình: chạy, nhảy, tấn công, và chết, được điều khiển bằng animationTimer và các frame tương ứng.<br/>
--Hoạt hình chết chạy hết trước khi hiển thị màn hình Game Over.
+-Kẻ thù tự động hồi sinh sau một khoảng thời gian.<br/>
+-Hiệu ứng tạm dừng: Khi tạm dừng, mọi chuyển động *(background, tile map, nhân vật, kẻ thù...)* dừng lại, hiển thị màn hình "Paused".<br/>
+-Hoạt hình: Nhân vật có các trạng thái hoạt hình: chạy, nhảy, tấn công, và chết, được điều khiển bằng *animationTimer* và các frame tương ứng.<br/>
+-Hoạt hình chết chạy hết trước khi hiển thị màn hình *Game Over*.
 
-# Cách chơi
--Điều khiển nhân vật: Phím A và D: Di chuyển trái/phải.<br/>
--SPACE: Nhảy.<br/>
--Phím J: Kích hoạt đòn năng lượng để tấn công kẻ thù.<br/>
--Tạm dừng: Nhấn P hoặc nhấp nút Pause (góc trên bên phải) để tạm dừng game.<br/>
--Game Over và khởi động lại: Khi nhân vật va chạm với đạn kẻ thù, hoạt ảnh chết sẽ phát, sau đó hiển thị màn hình Game Over. Nhấn R để khởi động lại game, hoặc có thể tương tác với các nút trên giao diện.<br/>
--Mục tiêu: Sống sót lâu nhất có thể, tiêu diệt kẻ thù, và đạt điểm cao nhất.<br/>
+# 4. Cách chơi
+Ngay khi khởi động, bạn sẽ bước vào giao diện Menu <br/>
+ ![menu](Preview/pre_menu.png)<br/>
+Tại đây, bạn có thể :
+    <ul>
+        <li>Nhấn *“PLAY”* để bắt đầu trò chơi</li>
+        <li>Nhấn *“QUIT”* để tắt chương trình</li>
+        <li>Nhấn vào biểu tượng ![volume](assets/image/muteButton.png) ở góc trên bên phải màn hình để tắt/bật âm thanh</li>
+    </ul>
+
+Sau khi nhấn nút *“PLAY”*, bạn sẽ bắt đầu trò chơi <br/>
+![startGame](Preview/pre_startGame.png)<br/>
+Nhấn nút *A* hoặc *D* trên bàn phím để di chuyển nhân vật sang trái hoặc phải<br/>
+Nút SPACE để nhân vật nhảy lên né các chướng ngại vật<br/>
+Để nhân vật tung ra đòn tấn công, nhấn phím *J*<br/>
+![playerAttack](Preview/pre_playerAttack.png)<br/>
+***Chú ý:*** 
+    <ul>
+        <li>Nhân vật sẽ luôn tự động trôi theo map từ phải sang trái.</li>
+        <li>Khi đến gần *ENEMY*, nó sẽ nhìn thấy bạn và tiếp cận nhân vật của bạn. Đến một khoảng cách gần hơn, nó sẽ tấn công nhân vật người chơi</li>
+    </ul>
+Trò chơi sẽ kết thúc khi nhân vật trôi ra ngoài màn hình, rơi xuống vực, hoặc bị trúng đòn đánh của *ENEMY*.<br/>
+<br/>
+Trong quá trình chơi, điểm số của bạn sẽ tăng dần theo thời gian, bạn có thể theo dõi nó ở góc phía trên bên trái màn hình
+![score](Preview/pre_score.png)<br/>
+Mục tiêu của trò chơi là cố gắng chạy xa nhất có thể, đạt được điểm số cao nhất.<br/>
+Bạn có thể tạm dừng bằng cách nhấn chuột trái vào nút *PAUSE* ![pauseButton](assets/image/pause_button.png), hoặc nhấn phím *P*. <br/>
+Khi tạm dừng, bạn sẽ có các lựa chọn <br/>
+![pauseContainer](Preview/pre_pauseContainer.png)<br/>
+    <ul>
+        <li>*"Resume"* để tiếp tục hành trình</li>
+        <li>*"Exit"* để quay ra ngoài màn hình Menu</li>
+    </ul>
+Nhạc nền và hiệu ứng âm thanh cũng sẽ ngừng hoạt động khi nhấn vào nút ![volume](assets/image/muteButton.png) <br/>
+Khi trò chơi kết thúc, điểm số của bạn sẽ được hiển thị cùng với 5 điểm cao nhất của các lượt chơi<br/>
+![gameOver](Preview/pre_gameOver.png)<br/>
+    <ul>
+        <li>Nhấn *"RESTART"* để bắt đầu một lượt chơi mới</li>
+        <li>Nhấn *"EXIT"* để quay trở về màn hình Menu</li>
+    </ul>    
