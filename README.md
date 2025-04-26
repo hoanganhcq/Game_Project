@@ -1,12 +1,12 @@
 # Twilight Run - hoanganh
-
+-[Gameplay](https://drive.google.com/file/d/1t7BehHeVEPM1Mqq9hIkh9bYAZJB8cHdP/view?usp=sharing)
 Twilight Run là một game platformer 2D đầy hành động đưa người chơi vào cuộc phiêu lưu ly kỳ trong thế giới năng động, cuộn liên tục. Là một anh hùng dũng cảm, bạn phải vượt qua những địa hình hiểm trở, chiến đấu với kẻ thù hung dữ và vượt qua chướng ngại vật để sống sót và đạt điểm cao nhất. Trò chơi kết hợp cơ chế platformer cổ điển với các tính năng hiện đại như nút giao diện người dùng tương tác, hoạt ảnh mượt mà và âm thanh sống động.
 
-[0. Cách tải game](#0-cách-tải-game)<br/>
-[1. Công nghệ sử dụng](#1-công-nghệ-sử-dụng) <br/>
-[2. Tính năng chính](#2-tính-năng-chính)<br/>
-[3. Cơ chế](#3-cơ-chế)<br/>
-[4. Cách chơi](#4-cách-chơi)
+*[0. Cách tải game](#0-cách-tải-game)*<br/>
+*[1. Công nghệ sử dụng](#1-công-nghệ-sử-dụng)*<br/>
+*[2. Tính năng chính](#2-tính-năng-chính)*<br/>
+*[3. Cơ chế](#3-cơ-chế)*<br/>
+*[4. Cách chơi](#4-cách-chơi)*
 
 # 0. Cách tải game
 Tải game đã được nén thành file Zip [tại đây](https://drive.google.com/drive/folders/171PBU7xCG6Dwi8uEEAM9gWBq93Yl-5x2?usp=sharing)<br/>
