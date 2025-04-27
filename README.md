@@ -11,6 +11,7 @@ Twilight Run là một game platformer 2D đầy hành động đưa người ch
  *[2. Tính năng chính](#2-tính-năng-chính)*<br/>
  *[3. Cơ chế](#3-cơ-chế)*<br/>
  *[4. Cách chơi](#4-cách-chơi)*<br/>
+ *[5. Tài nguyên Game](#5-tài-nguyên-game)*<br/>
 
 # 0. Cách tải game
 Tải game đã được nén thành file Zip <a href="https://drive.google.com/file/d/1wmleQnT9_mk1rwYvhO0yaO-7DMMOPZ2X/view?usp=sharing"><em>Tại đây</em></a><br/>
